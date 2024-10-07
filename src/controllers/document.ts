@@ -56,8 +56,7 @@ export default class document{
             const docData=await dbServices.document.createDocument(userId, cleanedArticle, metadata,keyword);
             res.status(200).send({status:true,message:"Document Created Successfully",data:docData});
         } catch (error: any) {
-            console.error("Error creating document:", error);
-            res.status(500).send({ error: error.message });
+            res.status(500).json({ status:false,error: error.message });
         }
     };
 
@@ -69,8 +68,7 @@ export default class document{
             const updatedDoc=await dbServices.document.updateDocument(userId, docId,content);
             res.status(200).send({status:true,message:"Document Updated Successfully",data:updatedDoc});
         } catch (error: any) {
-            console.error("Error creating document:", error);
-            res.status(500).send({ error: error.message });
+            res.status(500).json({ status:false,error: error.message });
         }
     };
 
@@ -83,8 +81,7 @@ export default class document{
             const documents = await dbServices.document.getDocumentsByUserId(userId);
             res.status(200).send({status:true,message:"All documents fetched",data:documents});
         } catch (error: any) {
-            console.error("Error fetching documents:", error);
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ status:false,error: error.message });
         }
     };
 
@@ -100,8 +97,7 @@ export default class document{
                 res.status(404).json({ message: "Document not found or not authorized to delete" });
             }
         } catch (error) {
-            console.error("Error deleting document:", error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ status:false,error: error.message });
         }
     };
 
@@ -119,8 +115,7 @@ export default class document{
                 });
             }
         } catch (error) {
-            console.error("Error deleting document:", error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ status:false,error: error.message });
         }
     };
 }

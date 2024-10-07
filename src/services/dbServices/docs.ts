@@ -32,9 +32,9 @@ export default class document{
     ):Promise<any> => {
         try {
             const updatedDocument = await DocumentModel.findOneAndUpdate(
-                { user: userId, _id: docId },   // Query to find the document by userId
-                { content: content }, // Update the content field
-                { new: true, upsert: true } // Return the updated document, and create it if it doesn't exist
+                { user: userId, _id: docId },   
+                { content: content }, 
+                { new: true, upsert: true } 
             );
             
             return updatedDocument;
