@@ -39,11 +39,11 @@ export default class document{
 
     static createDocumentController = async (req: AuthenticatedRequest, res: Response):Promise<any> => {
         try {
-            console.log(req.body)
+            // console.log(req.body)
             const userId = req.user;
             const { metadata} = req.body;  
             const ai=await aiWriter(metadata.title,metadata.personality,metadata.tone) 
-            console.log(ai,"ai")
+            // console.log(ai,"ai")
             let cleanedArticle;
             let cleanedExcerpt;
             if (ai) {
@@ -77,9 +77,9 @@ export default class document{
     // Fetch documents by user ID
     static getDocumentsByUserIdController = async (req: AuthenticatedRequest, res: Response) => {
         try {
-            console.log("/")
+            // console.log("/")
             const userId = req.user;
-            console.log(userId)
+            // console.log(userId)
             const documents = await dbServices.document.getDocumentsByUserId(userId);
             res.status(200).send({status:true,message:"All documents fetched",data:documents});
         } catch (error: any) {

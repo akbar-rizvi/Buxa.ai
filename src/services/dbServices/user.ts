@@ -6,7 +6,7 @@ import envConf from "../../config/envConf";
 
 export default class user{
 
-    static registerUser = async (userData: any) => {
+    static registerUser = async (userData: any):Promise<any> => {
         const { phoneNumber, email, firstName, lastName, password } = userData;
         
         // Check if user already exists
@@ -26,7 +26,7 @@ export default class user{
         return await newUser.save();
     };
 
-    static loginUser = async (email: string, password: string) => {
+    static loginUser = async (email: string, password: string):Promise<any> => {
         const user = await User.findOne({ email });
         if (!user) {
             throw new Error("User not found");

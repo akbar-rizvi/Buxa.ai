@@ -10,7 +10,7 @@ export class KeyManager {
         const absolutePath = path.isAbsolute(keysFilePath)
         ? keysFilePath
         : path.resolve(__dirname, keysFilePath);
-        console.log(absolutePath)
+        // console.log(absolutePath)
         if (!fs.existsSync(absolutePath)) {
             throw new Error(`API keys file not found at ${absolutePath}`);
         }
