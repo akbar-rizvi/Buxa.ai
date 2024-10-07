@@ -1,1 +1,0 @@
-{"version":3,"file":"nextapi.d.ts","sourceRoot":"","sources":["../../../src/helper/nextapi.ts"],"names":[],"mappings":"AAIA,qBAAa,UAAU;IACnB,OAAO,CAAC,IAAI,CAAW;IACvB,OAAO,CAAC,YAAY,CAAS;gBAEjB,YAAY,EAAE,MAAM;IAgBhC,UAAU,IAAI,MAAM;CAKvB"}
