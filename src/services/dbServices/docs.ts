@@ -9,7 +9,7 @@ export default class document{
         content: any,
         metadata: any,
         keyword:any
-    ) => {
+    ):Promise<any> => {
         try {
             const newDocument = new DocumentModel({
                 user: userId,
@@ -29,7 +29,7 @@ export default class document{
         userId: mongoose.Types.ObjectId,
         docId:mongoose.Types.ObjectId,
         content: any,        
-    ) => {
+    ):Promise<any> => {
         try {
             const updatedDocument = await DocumentModel.findOneAndUpdate(
                 { user: userId, _id: docId },   
@@ -45,7 +45,7 @@ export default class document{
     };
 
     // Fetch documents by user ID
-    static getDocumentsByUserId = async (userId: mongoose.Types.ObjectId) => {
+    static getDocumentsByUserId = async (userId: mongoose.Types.ObjectId):Promise<any> => {
         try {
             return await DocumentModel.find({ user: userId, isDeleted: false }).select("-user");
             

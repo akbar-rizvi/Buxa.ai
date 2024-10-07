@@ -1,14 +1,32 @@
 {
   "compilerOptions": {
-    "target": "ES6",                          // Specify ECMAScript target version
-    "module": "CommonJS",                        // Specify module code generation
-    "outDir": "./dist",                          // Redirect output structure to the dist folder
-    "rootDir": "./src",                          // Specify the root directory of input files
-    "strict": true,                              // Enable strict type-checking options
-    "esModuleInterop": true,                     // Enable import of CommonJS modules
-    "skipLibCheck": true,                        // Skip checking types of all declaration files
-    "forceConsistentCasingInFileNames": true     // Ensure consistent casing in imports
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": [
+      "es2021",
+      "es6",
+      "dom",
+      "Decorators.Legacy",
+      "ESNext"
+    ],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "pretty": false,
+    "sourceMap": true,
+    "target": "ES6",
+    "outDir": "./dist",
+    "downlevelIteration": true,
+    "allowJs": true,
+    "skipLibCheck": true
   },
-  "include": ["src"],                            // Include source code
-  "exclude": ["node_modules", "dist"]            // Exclude unnecessary files
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*"
+  ]
 }

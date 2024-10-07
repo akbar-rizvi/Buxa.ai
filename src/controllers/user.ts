@@ -84,8 +84,7 @@ export default class user{
 
             res.status(200).json({ message: "Logout successful" });
         } catch (error) {
-            console.error("Logout error:", error);
-            res.status(500).json({ message: "Server error during logout" });
+            res.status(500).json({ status:false,error: error.message });
         }
     };
 
