@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import dbServices from "../services/dbServices";
 import { aiWriter } from "../helper/ai";
 
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
     user?: any;
     body:any;
     params:any
@@ -75,13 +75,22 @@ export default class document{
     // Fetch documents by user ID
     static getDocumentsByUserIdController = async (req: AuthenticatedRequest, res: Response) => {
         try {
-            // console.log("/")
             const userId = req.user;
-            // console.log(userId)
             const documents = await dbServices.document.getDocumentsByUserId(userId);
             res.status(200).send({status:true,message:"All documents fetched",data:documents});
         } catch (error: any) {
-            res.status(500).json({ status:false,error: error.message });
+            res.status(500).send({ status:false,error: error.message });
+        }
+    };
+
+    static getDocumentById=async (req: AuthenticatedRequest, res: Response) => {
+        try {
+            const userId = req.user;
+            const docId=req.params.documentId
+            const documents = await dbServices.document.getDocumentById(userId,docId);
+            res.status(200).send({status:true,message:"Document fetched ",data:documents});
+        } catch (error: any) {
+            res.status(500).send({ status:false,error: error.message });
         }
     };
 
@@ -92,12 +101,12 @@ export default class document{
             const documentId = req.params.documentId;
             const result = await dbServices.document.deleteDocumentById(userId, documentId);
             if (result) {
-                res.status(200).json({ message: "Document deleted successfully" });
+                res.status(200).send({status:true, message: "Document deleted successfully" });
             } else {
-                res.status(404).json({ message: "Document not found or not authorized to delete" });
+                res.status(404).send({status:false, message: "Document not found or not authorized to delete" });
             }
         } catch (error) {
-            res.status(500).json({ status:false,error: error.message });
+            res.status(500).send({ status:false,error: error.message });
         }
     };
 
@@ -108,14 +117,14 @@ export default class document{
             const documentId = req.params.documentId;
             const result = await dbServices.document.updateIsFavoriteByDocumentId(userId, documentId);
             if (result) {
-                res.status(200).json({ message: "Document isFavorite updated successfully" });
+                res.status(200).send({status:false, message: "Document isFavorite updated successfully" });
             } else {
-                res.status(404).json({
+                res.status(404).send({status:false,
                     message: "Document not found or not authorized to update isFavorite",
                 });
             }
         } catch (error) {
-            res.status(500).json({ status:false,error: error.message });
+            res.status(500).send({ status:false,error: error.message });
         }
     };
 }

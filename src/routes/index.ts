@@ -1,7 +1,7 @@
 import express from 'express';
 import userROutes from './user'
 import docRoutes from './document'
-
+import auth from './auth'
 
 const router = express.Router();
 
@@ -14,7 +14,10 @@ const defaultRoutes = [
   {
     path: '/documents',
     route: docRoutes,
-  },
+  },{
+    path:'/auth',
+    route: auth
+  }
 
 ];
 

@@ -5,15 +5,14 @@ import envConf from "../config/envConf";
 
 // Interface representing a User document in MongoDB
 interface IUser extends Document {
-    phoneNumber: number;
     email: string;
     firstName: string;
     lastName: string;
-    password: string;
     refreshToken?: string;
     isPasswordCorrect(password: string): Promise<boolean>;
-    generateAccessToken(): string;
-    generateRefreshToken(): string;
+    generateAccessToken(): any;
+    generateRefreshToken(): any;
+    credits?: number; // Use lowercase `number` type for consistency
 }
 
 // Define the schema
@@ -26,7 +25,6 @@ const userSchema = new Schema<IUser>(
         },
         lastName: {
             type: String,
-            required: true,
             trim: true,
         },
         email: {
@@ -37,18 +35,13 @@ const userSchema = new Schema<IUser>(
             trim: true,
             index: true,
         },
-        phoneNumber: {
-            type: Number,
-            required: true,
-            trim: true,
-        },
-        password: {
-            type: String,
-            required: [true, "Password is required"],
-        },
         refreshToken: {
             type: String,
         },
+        credits: {
+            type: Number,
+            default: 5,
+        }
     },
     {
         timestamps: true,
@@ -56,11 +49,16 @@ const userSchema = new Schema<IUser>(
 );
 
 // Pre-save middleware to hash the password before saving
-userSchema.pre<IUser>("save", async function (next) {
-    if (!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
-});
+// userSchema.pre<IUser>("save", async function (next) {
+//     if (!this.isModified("password")) return next();
+    
+//     try {
+//         this.password = await bcrypt.hash(this.password, 10);
+//         next();
+//     } catch (error) {
+//         next(error);  // Pass error to the next middleware
+//     }
+// });
 
 // Method to check if the entered password is correct
 userSchema.methods.isPasswordCorrect = async function (password: string): Promise<boolean> {
@@ -73,8 +71,6 @@ userSchema.methods.generateAccessToken = function (): string {
         {
             _id: this._id,
             email: this.email,
-            firstName: this.firstName,
-            lastName: this.lastName,
         },
         envConf.accessTokenSecret,
         {

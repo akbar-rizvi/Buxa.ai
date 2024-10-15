@@ -4,7 +4,9 @@ import logger from "./config/logger";
 import router from "./routes";
 import envConf from "./config/envConf";
 import connectDB from "./config/db";
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
 
 app.use(

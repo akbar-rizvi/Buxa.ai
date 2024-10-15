@@ -26,7 +26,6 @@ const verifyAccessToken: RequestHandler = async (
         // Verify token with JWT
         const decodedToken = jwt.verify(token, envConf.accessTokenSecret) as { _id: string };
 
-        // Find user based on decoded token _id
         const user: any = await User.findById(decodedToken._id).select("-password");
         if (!user) {
             res.status(401).json({ message: "Unauthorized: User not found" });
@@ -36,7 +35,8 @@ const verifyAccessToken: RequestHandler = async (
             res.status(401).json({ message: "Unauthorized: Token Expired" });
             return;
         }
-
+        
+        console.log(user)
         user.refreshToken = "hidden";
         // Attach user to the request object
         req.user = user;
