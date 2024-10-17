@@ -1,23 +1,20 @@
-import { Router } from "express";
+import { Router  } from "express";
 import controller from "../controllers";
-import { verifyAccessToken } from "../config/jwt"; 
+import { authenticateUser } from "../middleware"; 
 import { validateRequest } from "../middleware";
 import validators from "../validators";
 
 const router = Router();
 
+router.get("/abc",async(req,res):Promise<any>=>{
+  return res.status(200).send({ status:true, message: "Api is running" });
+});
 
-// Route for creating a new document
-router.post("/create",verifyAccessToken,validateRequest(validators.auth.createDocument) ,controller.document.createDocumentController);
-router.put("/content/:documentId",verifyAccessToken ,controller.document.updateDocument);
-
-// Route for fetching documents by user ID
-router.get("/", verifyAccessToken,validateRequest(validators.auth.getDocumentsById) ,controller.document.getDocumentsByUserIdController);
-
-//route to delete documents by user ID
-router.delete("/:documentId", verifyAccessToken,validateRequest(validators.auth.deleteDocumentById) , controller.document.deleteDocumentByUserId);
-
-//route to toggle isFavorite
-router.put("/:documentId", verifyAccessToken,validateRequest(validators.auth.updateDocumentIsFavourite) , controller.document.toggleIsFavoriteByDocumentId);
+router.post("/",authenticateUser,validateRequest(validators.auth.createDocument) ,controller.document.createDocumentController);
+router.get("/", authenticateUser,validateRequest(validators.auth.getDocumentsById) ,controller.document.getDocumentsByUserIdController);
+router.put("/:documentId",authenticateUser,validateRequest(validators.auth.updateDocumentIsFavourite), controller.document.toggleIsFavoriteByDocumentId);
+router.delete("/:documentId", authenticateUser,validateRequest(validators.auth.deleteDocumentById),controller.document.deleteDocumentByUserId);
+router.get("/:documentId",authenticateUser,validateRequest(validators.auth.getDocumentsById),controller.document.getDocumentById)
+router.post("/:documentId",authenticateUser,validateRequest(validators.auth.updateDocument),controller.document.updateDocument)
 
 export default router;
