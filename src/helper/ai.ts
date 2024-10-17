@@ -6,7 +6,7 @@ import dotenv from "dotenv"
 dotenv.config()
 
 // Initialize KeyManager with the path to your API keys file
-const KEY_MANAGER = new KeyManager('../../groqAPIs.json');
+const KEY_MANAGER = new KeyManager('../../../groqAPIs.json');
 
 const SERPER_API_KEY = process.env.SERPER_API_KEY ;
 const GROQ_API_KEY1 = KEY_MANAGER.getNextKey() 
