@@ -2,13 +2,12 @@ import axios from 'axios';
 import * as winston from 'winston';
 import { ChatGroq } from '@langchain/groq';
 import { KeyManager } from './nextapi';
-import dotenv from "dotenv"
-dotenv.config()
+import { envConfigs } from '../config/envConfig';
 
 // Initialize KeyManager with the path to your API keys file
 const KEY_MANAGER = new KeyManager('../../../groqAPIs.json');
 
-const SERPER_API_KEY = process.env.SERPER_API_KEY ;
+const SERPER_API_KEY = envConfigs.serperapikey;
 const GROQ_API_KEY1 = KEY_MANAGER.getNextKey() 
 const GROQ_API_KEY2 = KEY_MANAGER.getNextKey()  
 const GROQ_API_KEY3 = KEY_MANAGER.getNextKey() 

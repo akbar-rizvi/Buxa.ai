@@ -1,9 +1,8 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import { envConfigs } from "./envConfig";
 
-dotenv.config();
 
-const secret = process.env.SECRET_KEY as string; // Ensure it's typed as a string
+const secret = envConfigs.jwt.secret
 
 // Function to create a JWT for the user
 const setUser = (payload: { userId:number }) => {
@@ -13,9 +12,9 @@ const setUser = (payload: { userId:number }) => {
     {
       userId: userId,
     },
-    secret, // Missing comma added here
+    secret, 
     {
-      expiresIn: '24h', // Token will expire in 24 hours
+      expiresIn: '24h', 
     }
   );
 };

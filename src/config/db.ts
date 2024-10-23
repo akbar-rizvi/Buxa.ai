@@ -1,16 +1,9 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Client } from "pg";
 import * as schema from "../models/schema"
-import dotenv from "dotenv"
 import logger from "./logger";
-dotenv.config()
-// const client = new Client({
-//   connectionString: "postgres://user:password@host:port/db",
-// });
-// or
+import { envConfigs } from "./envConfig";
 
-const db = process.env.DBPORT as string
-const dbport = parseInt(db)
 
 // export let client = new Client({
 //   host: process.env.HOST,
@@ -20,7 +13,7 @@ const dbport = parseInt(db)
 //   database: process.env.DATABASE
 // });
 
-export const client=new Client(process.env.PG_URL)
+export const client=new Client(envConfigs.db.url)
 
 client.connect().then(()=>{
   logger.info("Postgress Client is Connected Successfully")

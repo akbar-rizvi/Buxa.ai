@@ -1,8 +1,6 @@
-import { Config, defineConfig } from "drizzle-kit";
-import dotenv from "dotenv"
-dotenv.config()
+import {envConfigs} from "./src/config/envConfig"
 
-// console.log(process.env.HOST,process.env.USER,process.env.PASSWORD,process.env.DATABASE)
+
 export default ({
   dialect: "postgresql", 
   schema: "./src/models/schema.ts",
@@ -13,6 +11,6 @@ export default ({
     // password: process.env.PASSWORD,
     // database: process.env.DATABASE,
     // ssl: false,
-    url:process.env.PG_URL
+    url:envConfigs.db.url
   },
 });
