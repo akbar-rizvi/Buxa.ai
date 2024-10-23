@@ -43,16 +43,16 @@ export default class validators {
       .object({
         metadata: z
           .object({
-            title: z.string().min(1, "Title is required"),
+            title: z.string({
+              required_error:"title is required"
+            }),
             researchLevel: z
               .number()
-              .min(1, "Research level is required")
               .optional(),
             personality: z
               .array(z.string())
               .nonempty("Personality array must have at least one element"),
-            tone: z.string().min(1, "Tone is required"),
-
+            tone: z.string({required_error:"Tone is required"}),
             language: z.string().min(1, "Language is required").optional(),
             useCase: z.string().min(1, "Use case is required").optional(),
           })
