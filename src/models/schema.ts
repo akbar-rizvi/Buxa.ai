@@ -1,7 +1,7 @@
 import { pgTable, serial, varchar, text, integer, jsonb, timestamp, boolean,primaryKey } from 'drizzle-orm/pg-core';
 import { sql , relations } from 'drizzle-orm';
 
-// Define User table
+
 export const users:any = pgTable('userss', {
     id: serial('id').primaryKey(),
     firstName: varchar('first_name', { length: 255 }).notNull(),
@@ -9,11 +9,20 @@ export const users:any = pgTable('userss', {
     email: varchar('email', { length: 255 }).notNull().unique(),
     phoneNumber: varchar('phone_number',{length:10}).notNull(),
     password: varchar('password', { length: 255 }).notNull(),
-    credits:varchar("credits").default("50"),
+    credits:integer("credits").default(50),
+    usedCredits:integer("used_credits").default(0),
+    totalContent:integer("total_content").default(0),
+    totalResearch:integer("total_research").default(0),
+    totalAlerts:integer("total_alerts").default(0),
+    coc:integer("credits_on_content").default(0),
+    cor:integer("credits_on_research").default(0),
+    coa:integer("credits_on_alerts").default(0),
     refreshToken: text('refresh_token'),
     createdAt: timestamp('created_at').default(sql`NOW()`),
     updatedAt: timestamp('updated_at').default(sql`NOW()`),
-});
+}, (table) => ({
+  pk: primaryKey({ columns: [table.id] }),
+}));
 
 export const documents:any = pgTable('documents', {
     id: serial('id').primaryKey(),
@@ -21,12 +30,31 @@ export const documents:any = pgTable('documents', {
     content: text('content').notNull(),
     metadata: jsonb('metadata'), 
     keyword:jsonb('keyword'),
+    documentType:varchar("document_type"),
     isDeleted: boolean('is_deleted').default(false),
     isFavorite: boolean('is_favorite').default(false),
     createdAt: timestamp('created_at').default(sql`NOW()`),
     updatedAt: timestamp('updated_at').default(sql`NOW()`),
 
-});
+}, (table) => ({
+  pk: primaryKey({ columns: [table.id] }),
+}));
+
+export const alert=pgTable("alert",{
+  id:serial("id"),
+  userId: integer('user_id').references(() => users.id),
+  alertId:varchar("alert_id"),
+  metaData:jsonb('metadata'),
+  alertContent:varchar('alert_content'),
+  // alertStatus:varchar("alert_status"),//ongoing,expired
+  // fromDate:timestamp('from_date'),
+  // toDate:timestamp("to_date"),
+  isDeleted: boolean('is_deleted').default(false),
+  isFavorite: boolean('is_favorite').default(false),
+  createdAt: timestamp('created_at').default(sql`NOW()`),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.id] }),
+}))
 
 export const payment:any=pgTable("payment",{
   id:serial("id"),
@@ -49,7 +77,8 @@ export const paymentRelation = relations(payment,({one})=>({
 
 export const usersRelations = relations(users, ({ many }) => ({
   documents: many(documents),
-  payment: many(payment)
+  payment: many(payment),
+  alert:many(alert)
 }));
 
 
@@ -59,4 +88,11 @@ export const documentsRelations = relations(documents, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const alertRelations = relations(alert,({one})=>({
+  alert:one(alert,{
+    fields:[alert.userId],
+    references:[users.id]
+  })
+}))
 

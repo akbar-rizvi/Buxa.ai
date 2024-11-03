@@ -79,7 +79,7 @@ export default class user{
             // console.log("Registered User Token:",token)
             return {token,user:user[0]}
         }catch(error:any){
-            throw new Error(error.message)
+            throw new Error(error)
         }
     }
 
@@ -101,9 +101,44 @@ export default class user{
         // console.log(details) 
         return details;
         }catch(e){
-            throw new Error
+            throw new Error(e)
         }
     }
 
+    static dashboardData=async(userId:number):Promise<any>=>{
+        try {
+            return await postgresdb.query.users.findFirst({
+                where:eq(users.id,userId),
+                columns:{
+                    credits:true,
+                    usedCredits:true,
+                    totalContent:true,
+                    totalResearch:true,
+                    totalAlerts:true,
+                    coc:true,
+                    cor:true,
+                    coa:true
+                },
+                with:{
+                    documents:{
+                        columns:{
+                            content:true,
+                            documentType:true,
+                            createdAt:true
+                        }
+                    },
+                    alert:{
+                        columns:{
+                            alertContent:true,
+                            createdAt:true,
+                            metaData:true
+                        }
+                    }
+                }
+            })
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
 
 }
