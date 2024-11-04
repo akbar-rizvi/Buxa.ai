@@ -41,50 +41,6 @@ export default class document{
     };
 
 
-    // static createDocument = async(req:AuthenticatedRequest, res:Response) => {
-    //     try {
-    //         let UserId = req.user.userId;
-    //         const { metadata } = req.body;
-    //         const pythonProcess = spawn('python3', ['path_to_your_python_script.py', metadata.title, metadata.personality, metadata.tone]);
-    
-    //         pythonProcess.stdout.on('data', async (data) => {
-    //             let aiResponse;
-    //             try {
-    //                 aiResponse = JSON.parse(data.toString()); // Ensure Python script outputs JSON
-    //             } catch (error) {
-    //                 return res.status(500).send({ status: false, error: "Invalid response from Python script" });
-    //             }
-    
-    //             let cleanedArticle = aiResponse.article.replace(/\n\s*\+\s*/g, '');
-    //             let cleanedExcerpt = aiResponse.excerpt.replace(/\n\s*\+\s*/g, '');
-    //             let finalContent = marked(cleanedArticle);
-    //             const keyword = await extractExcerptAndKeywords(cleanedExcerpt);
-    //             const documentData = await dbServices.document.createDocument(UserId, finalContent, metadata, keyword);
-    //             const wordCount = cleanedArticle.split(/\s+/).filter(word => word.length > 0).length;
-    //             documentData.newDocument[0]["wordCount"] = wordCount;
-                
-    //             res.status(201).send({
-    //                 status: true,
-    //                 message: "Document Created Successfully",
-    //                 data: documentData.newDocument[0],
-    //                 credits: parseInt(documentData.credits[0].credits)
-    //             });
-    //         });
-    
-    //         pythonProcess.stderr.on('data', (error) => {
-    //             res.status(500).send({ status: false, error: error.toString() });
-    //         });
-    
-    //         pythonProcess.on('exit', (code) => {
-    //             if (code !== 0) {
-    //                 res.status(500).send({ status: false, error: "Python script exited with error" });
-    //             }
-    //         });
-    //     } catch (error) {
-    //         res.status(500).send({ status: false, error: error.message });
-    //     }
-    // };
-
     static getDocumentsByUserId = async (req: AuthenticatedRequest, res: Response) => {
         try {
             const userId = req.user.userId;
