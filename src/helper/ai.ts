@@ -3,6 +3,7 @@ import * as winston from 'winston';
 import { ChatGroq } from '@langchain/groq';
 import { KeyManager } from './nextapi';
 import { envConfigs } from '../config/envConfig';
+import {ChatOpenAI} from "@langchain/openai"
 
 // Initialize KeyManager with the path to your API keys file
 const KEY_MANAGER = new KeyManager('../../../groqAPIs.json');
@@ -40,12 +41,19 @@ const editor_llm = new ChatGroq({
     apiKey: GROQ_API_KEY2
 });
 
-const writer_llm = new ChatGroq({
-    temperature: 0,
-    modelName: "llama-3.1-70b-versatile",
-    apiKey: GROQ_API_KEY3
+// const writer_llm = new ChatGroq({
+//     temperature: 0,
+//     modelName: "llama-3.1-70b-versatile",
+//     apiKey: GROQ_API_KEY3
+// });
+
+const writer_llm = new ChatOpenAI({
+    model: "gpt-4o-mini",
 });
 
+
+console.log(writer_llm,"3")
+ 
 // Placeholder for OpenAIEmbeddings
 class OpenAIEmbeddings {
     model: string;
@@ -299,7 +307,8 @@ A markdown document containing a fully structured news article. The document sho
         .replace('{full_content}', full_content);
 
     try {
-        const response:any = await writer_llm.invoke(formatted_prompt);
+        const response:any = await writer_llm.invoke( formatted_prompt);
+        console.log(response.content,"2")
         logger.info("Article writing completed");
         return response.content;
     } catch (error) {
@@ -326,6 +335,7 @@ Only output the excerpt and keywords
 
     try {
         const response:any = await writer_llm.invoke(formatted_prompt);
+        console.log(response.content,"1")
         return response.content;
     } catch (error) {
         logger.error(`Error during SEO processing: ${error}`);

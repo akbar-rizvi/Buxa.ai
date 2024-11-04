@@ -16,6 +16,7 @@
   "description": "",
   "dependencies": {
     "@langchain/groq": "^0.1.2",
+    "@langchain/openai": "^0.3.11",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
