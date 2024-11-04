@@ -9,7 +9,8 @@ const envVarsSchema = z.object({
   SALT: z.string().default("10").transform((str) => parseInt(str, 10)),
   PG_URL: z.string(), // PostgreSQL connection URL
   SECRET_KEY: z.string().default("varunkate"), // Assign default secret key
-  SERPER_API_KEY:z.string()
+  SERPER_API_KEY:z.string(),
+  OPEN_API_KEY:z.string()
 });
 
 const envVars = envVarsSchema.parse(process.env);
@@ -25,7 +26,8 @@ export const envConfigs = {
   jwt: {
     secret: envVars.SECRET_KEY,
   },
-  serperapikey:envVars.SERPER_API_KEY
+  serperapikey:envVars.SERPER_API_KEY,
+  openapikey:envVars.OPEN_API_KEY
 };
 
 export const isDev = envVars.MODE === "dev";

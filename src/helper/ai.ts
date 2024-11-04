@@ -48,11 +48,10 @@ const editor_llm = new ChatGroq({
 // });
 
 const writer_llm = new ChatOpenAI({
-    model: "gpt-4o-mini",
+    model: "gpt-4-turbo",
+    openAIApiKey: envConfigs.openapikey,
 });
 
-
-console.log(writer_llm,"3")
  
 // Placeholder for OpenAIEmbeddings
 class OpenAIEmbeddings {
@@ -307,6 +306,7 @@ A markdown document containing a fully structured news article. The document sho
         .replace('{full_content}', full_content);
 
     try {
+        console.log("error")
         const response:any = await writer_llm.invoke( formatted_prompt);
         console.log(response.content,"2")
         logger.info("Article writing completed");
