@@ -30,7 +30,7 @@ export const documents:any = pgTable('documents', {
     content: text('content').notNull(),
     metadata: jsonb('metadata'), 
     keyword:jsonb('keyword'),
-    documentType:varchar("document_type"),
+    // documentType:varchar("document_type"),
     isDeleted: boolean('is_deleted').default(false),
     isFavorite: boolean('is_favorite').default(false),
     createdAt: timestamp('created_at').default(sql`NOW()`),
@@ -78,7 +78,7 @@ export const paymentRelation = relations(payment, ({ one }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   documents: many(documents, { relationName: 'documents' }),
   payments: many(payment, { relationName: 'payments' }),
-  alerts: many(alert, { relationName: 'alerts' })
+  // alerts: many(alert, { relationName: 'alerts' })
 }));
 
 export const documentsRelations = relations(documents, ({ one }) => ({
