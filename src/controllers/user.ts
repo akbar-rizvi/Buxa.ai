@@ -14,7 +14,7 @@ export default class user {
       const validateUser = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${token}`);
       if (validateUser.data.verified_email == false){
         res.status(500).send({status: false,message: "Unauthorized email"});
-      }
+      } 
       const genToken = await dbServices.user.googleLogIn(validateUser.data);
       const accessToken = genToken.token;
       const data = genToken.user;

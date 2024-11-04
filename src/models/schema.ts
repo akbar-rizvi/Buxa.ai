@@ -70,29 +70,33 @@ export const payment:any=pgTable("payment",{
   pk:primaryKey({columns:[table.id]})
 }))
 
-export const paymentRelation = relations(payment,({one})=>({
-  user:one(users,{fields:[payment.userId],references:[users.id],relationName:"payments"})
+export const paymentRelation = relations(payment, ({ one }) => ({
+  user: one(users, {
+    fields: [payment.userId],
+    references: [users.id],
+    relationName: 'payments'
+  })
 }))
 
-
 export const usersRelations = relations(users, ({ many }) => ({
-  documents: many(documents),
-  payment: many(payment),
-  alert:many(alert)
+  documents: many(documents, { relationName: 'documents' }),
+  payments: many(payment, { relationName: 'payments' }),
+  alerts: many(alert, { relationName: 'alerts' })
 }));
-
 
 export const documentsRelations = relations(documents, ({ one }) => ({
   user: one(users, {
     fields: [documents.userId],
     references: [users.id],
-  }),
+    relationName: 'documents'
+  })
 }));
 
-export const alertRelations = relations(alert,({one})=>({
-  alert:one(alert,{
-    fields:[alert.userId],
-    references:[users.id]
+export const alertRelations = relations(alert, ({ one }) => ({
+  user: one(users, {
+    fields: [alert.userId],
+    references: [users.id],
+    relationName: 'alerts'
   })
 }))
 
