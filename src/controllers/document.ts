@@ -18,6 +18,7 @@ export default class document{
     static createDocument = async (req: AuthenticatedRequest, res: Response):Promise<any> => {
         try {
             const UserId= req.user.userId;
+            console.log(UserId);
             if(!UserId){
                 throw new Error("Invalid User")
             }
@@ -72,15 +73,23 @@ export default class document{
         }
     }
 
+    static countWords(content: string): number {
+        // Ensure content is a string before processing
+        const plainText = String(content).replace(/<[^>]*>/g, ''); // Remove HTML tags
+        const words = plainText.trim().split(/\s+/); // Split by whitespace
+        return words.filter(word => word.length > 0).length; // Count non-empty words
+      }
+
 
     static getDocumentsByUserId = async (req: AuthenticatedRequest, res: Response) => {
         try {
             const userId = req.user.userId;
             const documents = await dbServices.document.getDocumentsByUserId(userId);
-            const docWithWords = documents.map((document:any)=>{
-                return {...document,words:document.content.split(/\s+/).filter((word: string | any[]) => word.length > 0).length}
-            })
-            res.status(200).send({status:true,message:"All documents fetched",data:docWithWords});
+            const responseWithWordCount = documents.map(item => ({
+                ...item,
+                wordCount: this.countWords(item.content)
+              }));
+            res.status(200).send({status:true,message:"All documents fetched",data:responseWithWordCount});
         } catch (error) {
             logger.error(`Error in getting Document:${error.mesage}`)
             res.status(500).json({status:false, error: error.message });
