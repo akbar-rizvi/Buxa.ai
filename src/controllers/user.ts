@@ -14,7 +14,7 @@ export default class user {
   static googleSignInSignUp =  async(req:Request,res:Response)=>{
     try {
       const token = req.query.code;
-      console.log(token,"::::")
+      // console.log(token,"::::")
       let clientId = envConfigs.googleClientId;
       let clientSecret = envConfigs.googleClientSecret;
       let REDIRECT_URI = envConfigs.redirecturl;
@@ -50,7 +50,7 @@ export default class user {
         query:{user:JSON.stringify(userDetails)}
       }));
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       logger.error(`Error in google auth:${error.mesage}`)
       res.status(500).json({ status: false, message: error.mesage });
     }
