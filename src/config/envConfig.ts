@@ -16,7 +16,7 @@ const envVarsSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string(),
   REDIRECT_URI:z.string().url(),
   FRONTEND_REDIRECT_URL:z.string().url(),
-  EXPIRE_TIME: z.number().default(7200) // 1 hour
+  EXPIRE_TIME: z.string() // 1 hour
 });
 
 const envVars = envVarsSchema.parse(process.env);
