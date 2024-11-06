@@ -59,21 +59,20 @@ export default class user{
     // }
 
  
-    static googleLogIn = async(userDetails:any)=>{
+    static googleLogIn = async(email:string,name:string)=>{
         try{
-            const user:any= await postgresdb.select().from(users).where(eq(users.email, userDetails.email)).limit(1);
-            // console.log("the user is",user)
-            if (user.length === 0) {
-                const data:any = await postgresdb.insert(users).values({
-                    firstName:userDetails.given_name.trim(),
-                    lastName:userDetails.family_name,
-                    email:userDetails.email,
+            const user:any= await postgresdb.select().from(users).where(eq(users.email, email)).limit(1);
+            if (user.length <= 0) {
+                const nameParts = name.split(" ")
+                const user:any = await postgresdb.insert(users).values({
+                    firstName:nameParts[0],
+                    lastName:nameParts.slice(1).join(" "),
+                    email:email,
                     phoneNumber:'null',
-                    password:"123"
-                }).returning({email:users.email,firstName:users.firstName,lastName:users.lastName,id:users.id,credit:users.credits})
-                const token = setUser({userId:data[0].id})
-                // console.log("Registered User Tokenn:",token)
-                return {token,data}
+                    password:'null'
+                }).returning();
+                const token = setUser({userId:user[0].id})
+                return {token:token,user:user[0]}
             }
             const token = setUser({userId:user[0].id})
             // console.log("Registered User Token:",token)

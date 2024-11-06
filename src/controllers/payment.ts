@@ -135,7 +135,7 @@ export class Payment {
         res.redirect("https://0e8f-2401-4900-8843-9c99-16de-7ca9-378f-99a3.ngrok-free.app/failure")
       }
     }catch(error:any){
-       throw new Error(error)
+      res.status(500).json({ error: error.message });
     }
   }
 }

@@ -64,19 +64,33 @@ export default class validators {
   });
 
   static getDocumentsById = z.object({
-    body: z.object({}).strict(),   // No body content expected
-    params: z.object({}).strict(),  // Ensures documentId is present and a valid number
-    query: z.object({}).strict(),  // No query parameters expected
+    body: z.object({}).strict(),   
+    params: z.object({}).strict(),  
+    query: z.object({}).strict(),  
 });
 
   static deleteDocumentById = z.object({
-    body: z.object({}).strict(),  // No body content for this request
+    body: z.object({}).strict(),  
     params: z.object({
         documentId: z.string().refine((id) => !isNaN(Number(id)), {
-            message: "documentId must be a number",  // Ensures documentId is a valid number
+            message: "documentId must be a number",  
         }),
-    }).strict(),  // Validating that the documentId parameter is present
-    query: z.object({}).strict(),  // No query parameters for this request
+    }).strict(),  
+    query: z.object({
+      
+    }).strict(),  
+});
+
+  static deleteResearchDocument = z.object({
+    body: z.object({}).strict(),  
+    params: z.object({
+        documentId: z.string().refine((id) => !isNaN(Number(id)), {
+            message: "documentId must be a number",  
+        }),
+    }).strict(),  
+    query: z.object({
+      index:z.string({required_error:"Index is required"})
+    }).strict(),  
 });
 
   static updateDocumentIsFavourite = z.object({
@@ -91,11 +105,32 @@ export default class validators {
 
   static updateDocument = z.object({
     body: z.object({
-        content: z.string().nonempty("Content is required"), // Validates that 'content' is a non-empty string
+        content: z.array(z.string()), // Validates that 'content' is a non-empty string
     }),
     params: z.object({
         documentId: z.string()
     }),
     query: z.object({}).strict(),
+});
+
+static createResearch = z.object({
+  body: z
+    .object({
+      metadata: z
+        .object({
+          topic: z.array(z.string()),
+          format: z.string()
+            .optional(),
+          timeRange: z.string({required_error:"Time range is required"}),
+          focus: z.string().optional(),
+          source: z.string().optional(),
+          deepDive: z.boolean({required_error:"Deep dive is required"}),
+
+        })
+        .strict(),
+    })
+    .strict(),
+  params: z.object({}).strict(),
+  query: z.object({}).strict(),
 });
 }

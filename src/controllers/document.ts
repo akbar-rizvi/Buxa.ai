@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { spawn } from 'child_process';
 import dbServices from "../services/dbServices";
-import { aiWriter } from "../helper/ai";
+import { aiWriter } from "../helper/article";
 import {marked} from "marked"
 import { extractExcerptAndKeywords } from "../helper/documentKywordFilter";
+import { researchArticle } from "../helper/research";
 
 interface AuthenticatedRequest extends Request {
     user?: any;
@@ -39,6 +40,19 @@ export default class document{
             res.status(500).send({ status: false ,error: error.message });
         }
     };
+
+    static createResearch=async(req:Request,res:Response)=>{
+        try {
+            const userId=req["user"].userId
+            const {metadata}=req.body
+            const research= await researchArticle(metadata.topic,metadata.timeRange,metadata.deepDive)
+            let researchFormatted=await Promise.all(research.articleContentArray.map((content)=>marked(content.replace(/#/g, ''))))
+            const data=await dbServices.document.createResearch(userId,metadata,research.allArticles,researchFormatted)
+            res.status(201).send({status:true,message:"Document Created Successfully",data:data});
+        } catch (error) {
+            res.status(500).send({ status: false ,error: error.message }); 
+        }
+    }
 
 
     static getDocumentsByUserId = async (req: AuthenticatedRequest, res: Response) => {
@@ -112,6 +126,39 @@ export default class document{
             updateDoc[0].wordCount = wordCount
             res.status(200).send({message:"Document Updated Successfully",status:true,data:updateDoc[0]})
         }catch(error:any){
+            res.status(500).send({message:error.message,status:false})
+        }
+    }
+
+
+    static updateResearch=async(req:AuthenticatedRequest,res:Response)=>{
+        try {
+            const userId = req.user.userId;
+            const documentId = req.params.documentId
+            const content = req.body.content
+            if(!content || !documentId || !userId){
+                res.status(500).send({message:"Unauthorized",status:false})
+            }
+            const updateDoc:any = await dbServices.document.updateResearch(userId,parseInt(documentId),content) 
+            res.status(200).send({message:"Research Updated Successfully",status:true,data:updateDoc[0]})
+        } catch (error) { 
+            res.status(500).send({message:error.message,status:false})
+        }
+    }
+
+
+
+    static deleteResearch=async(req:AuthenticatedRequest,res:Response)=>{
+        try {
+            const userId = req.user.userId;
+            const documentId = req.params.documentId
+            const index = req.query.index.toString()
+            if(!index || !documentId || !userId){
+                res.status(500).send({message:"Unauthorized",status:false})
+            }
+            const deletedDoc=await dbServices.document.deleteResearch(userId,parseInt(documentId),parseInt(index)) 
+            res.status(200).send({message:"Research deleted Successfully",status:true,data:deletedDoc})
+        } catch (error) {  
             res.status(500).send({message:error.message,status:false})
         }
     }

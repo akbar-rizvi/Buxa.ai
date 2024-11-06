@@ -16,7 +16,7 @@ export default class document{
                     content,     
                     metadata,     
                     keyword,
-                    DocumentType:"content"     
+                    documentType:"article"     
                 }).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite});
                 const credits = await postgresdb.update(users).set({credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalContent:sql`${userDetails[0].totalContent}+1`,coc:sql`${userDetails[0].coc}+1`}).where(eq(users.id,userId)).returning({credits:users.credits}).execute()
                 return {newDocument,credits}; 
@@ -25,6 +25,8 @@ export default class document{
             throw new Error(error.message || "Failed to create document");
         }
     };
+
+
     static getDocumentsByUserId = async (userId: number): Promise<any> => {
         try {
             const getDocument = await postgresdb.select({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).from(documents).where(and(eq(documents.userId, userId),eq(documents.isDeleted, false))).execute();
@@ -72,7 +74,7 @@ export default class document{
 
     static updateDoc = async(userId:number,documentId:number,content:string)=>{
         try{
-            if(documentId===0){
+            if(documentId==0){
                 return await postgresdb.insert(documents).values({
                     content:content,
                     userId:userId
@@ -82,6 +84,63 @@ export default class document{
             }
         }catch(error:any){
             throw new Error(error)
+        }
+    }
+
+
+    static createResearch=async(userId:number,metaData:any,researchJson:any,content:any):Promise<any>=>{
+        try {
+            return await postgresdb.transaction(async (tx) => {
+                const userDetails = await tx.select().from(users).where(eq(users.id,userId))
+                if (userDetails[0].credits <= 0) throw new Error("Insufficent balance")
+                const data=await tx.insert(documents).values({
+                        userId:userId,
+                        content:content,
+                        metadata:metaData,
+                        keyword:researchJson,
+                        documentType:"research"
+                    }).returning({id:documents.id,content:documents.content,isFavorite:documents.isFavorite,updatedAt:documents.updatedAt})
+                await tx.update(users).set({
+                    credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalResearch:sql`${userDetails[0].totalContent}+1`,cor:sql`${userDetails[0].coc}+1`
+                }).where(eq(users.id,userId))
+                return data
+            })
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    static updateResearch=async(userId:number,documentId:number,content:any):Promise<any>=>{
+        try {
+            if(documentId==0){
+                return await postgresdb.insert(documents).values({
+                    content:content,
+                    userId:userId
+                }).returning({content:documents.content,id:documents.id,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite})
+            }else{
+                return await postgresdb.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
+            }
+
+        } catch (error) {
+            throw new Error(error) 
+        }
+    }
+
+    static deleteResearch=async(userId:number,documentId:number,index:number):Promise<any>=>{
+        try {
+            return await postgresdb.transaction(async (tx) => {
+                const docData=await postgresdb.query.documents.findFirst({
+                    where:and(eq(documents.id,documentId),eq(documents.userId,userId)),
+                    columns:{
+                        content:true
+                    }
+                })
+
+                const content=docData.content.splice(index,index)
+                return await postgresdb.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
+            })
+        } catch (error) {
+            throw new Error(error) 
         }
     }
 }

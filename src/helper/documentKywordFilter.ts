@@ -1,4 +1,4 @@
-export const  extractExcerptAndKeywords=async(input:any)=> {
+export const  extractExcerptAndKeywords=async(input:any):Promise<any>=> {
   // Use regex to extract the excerpt and keywords
   const excerptMatch = input.match(/\*\*Excerpt\*\*:\s*([\s\S]*?)\n\n/);
   const keywordsMatch = input.match(/\*\*Keywords\*\*:\s*([\s\S]*)/);
