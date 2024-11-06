@@ -53,6 +53,7 @@ export default class document{
     static createResearch=async(req:Request,res:Response)=>{
         try {
             const userId=req["user"].userId
+            const docId=req.query.id.toString()
             if(!userId){
                 throw new Error("Invalid User")
             }
@@ -63,7 +64,7 @@ export default class document{
             const {metadata}=req.body
             const research= await researchArticle(metadata.topic,metadata.timeRange,metadata.deepDive)
             let researchFormatted=await Promise.all(research.articleContentArray.map((content)=>marked(content.replace(/#/g, ''))))
-            const data=await dbServices.document.createResearch(userId,metadata,research.allArticles,researchFormatted)
+            const data=await dbServices.document.createResearch(userId,metadata,research.allArticles,researchFormatted,parseInt(docId))
             res.status(200).send({status:true,message:"Document Created Successfully",data:data});
         } catch (error) {
             logger.error(`Error in create Research:${error.mesage}`)
@@ -85,6 +86,20 @@ export default class document{
             res.status(500).json({status:false, error: error.message });
         }
     };
+
+    static getResearchbyUserId=async(req:AuthenticatedRequest,res:Response)=>{
+        try {
+            const userId = req.user.userId;
+            if(!userId){
+                throw new Error("Invalid User")
+            }
+            const researchData=await dbServices.document.getResearchbyUserId(userId)
+            res.status(200).send({status:true,message:"All research fetched",data:researchData});
+        } catch (error) {
+            logger.error(`Error in getting Research:${error.mesage}`)
+            res.status(500).json({status:false, error: error.message });
+        }
+    }
 
     static deleteDocumentByUserId = async (req: Request, res: Response):Promise<void>=> {
         try {

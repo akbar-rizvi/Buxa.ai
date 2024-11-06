@@ -48,7 +48,7 @@ export default class user{
 
     static dashboardData=async(userId:number):Promise<any>=>{
         try {
-            return await postgresdb.query.users.findFirst({
+            return postgresdb.query.users.findFirst({
                 where:eq(users.id,userId),
                 columns:{
                     credits:true,
@@ -68,13 +68,13 @@ export default class user{
                             createdAt:true
                         }
                     },
-                    alert:{
-                        columns:{
-                            alertContent:true,
-                            createdAt:true,
-                            metaData:true
-                        }
-                    }
+                //     alert:{
+                //         columns:{
+                //             alertContent:true,
+                //             createdAt:true,
+                //             metaData:true
+                //         }
+                //     }
                 }
             })
         } catch (error) {
