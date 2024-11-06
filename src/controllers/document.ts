@@ -5,6 +5,7 @@ import { aiWriter } from "../helper/article";
 import {marked} from "marked"
 import { extractExcerptAndKeywords } from "../helper/documentKywordFilter";
 import { researchArticle } from "../helper/research";
+import logger from "../config/logger";
 
 interface AuthenticatedRequest extends Request {
     user?: any;
@@ -16,7 +17,14 @@ interface AuthenticatedRequest extends Request {
 export default class document{
     static createDocument = async (req: AuthenticatedRequest, res: Response):Promise<any> => {
         try {
-            let UserId= req.user.userId;
+            const UserId= req.user.userId;
+            if(!UserId){
+                throw new Error("Invalid User")
+            }
+            const CheckUser= await dbServices.user.userDetails(UserId)
+            if (CheckUser[0].credits==0){
+                throw new Error("Insufficent balance")
+            }
             const { metadata } = req.body;  
             const ai=await aiWriter(metadata.title,metadata.personality,metadata.tone) 
             let cleanedArticle;
@@ -35,8 +43,9 @@ export default class document{
             const documentData:any = await dbServices.document.createDocument(UserId,finalContent,metadata,keyword);
             const wordCount = cleanedArticle?.split(/\s+/).filter(word => word.length > 0).length;
             documentData.newDocument[0].wordCount = wordCount
-            res.status(201).send({status:true,message:"Document Created Successfully",data:documentData.newDocument[0],credits:parseInt(documentData.credits[0].credits)});
+            res.status(200).send({status:true,message:"Document Created Successfully",data:documentData.newDocument[0],credits:parseInt(documentData.credits[0].credits)});
         } catch (error:any) {
+            logger.error(`Error in create Document:${error.mesage}`)
             res.status(500).send({ status: false ,error: error.message });
         }
     };
@@ -44,12 +53,20 @@ export default class document{
     static createResearch=async(req:Request,res:Response)=>{
         try {
             const userId=req["user"].userId
+            if(!userId){
+                throw new Error("Invalid User")
+            }
+            const CheckUser= await dbServices.user.userDetails(userId)
+            if (CheckUser[0].credits==0){
+                throw new Error("Insufficent balance")
+            }
             const {metadata}=req.body
             const research= await researchArticle(metadata.topic,metadata.timeRange,metadata.deepDive)
             let researchFormatted=await Promise.all(research.articleContentArray.map((content)=>marked(content.replace(/#/g, ''))))
             const data=await dbServices.document.createResearch(userId,metadata,research.allArticles,researchFormatted)
-            res.status(201).send({status:true,message:"Document Created Successfully",data:data});
+            res.status(200).send({status:true,message:"Document Created Successfully",data:data});
         } catch (error) {
+            logger.error(`Error in create Research:${error.mesage}`)
             res.status(500).send({ status: false ,error: error.message }); 
         }
     }
@@ -64,22 +81,23 @@ export default class document{
             })
             res.status(200).send({status:true,message:"All documents fetched",data:docWithWords});
         } catch (error) {
+            logger.error(`Error in getting Document:${error.mesage}`)
             res.status(500).json({status:false, error: error.message });
         }
     };
 
-    static deleteDocumentByUserId = async (req: AuthenticatedRequest, res: Response) => {
+    static deleteDocumentByUserId = async (req: Request, res: Response):Promise<void>=> {
         try {
-            const userId = req.user.userId;
+            const userId = req["user"].userId
             const documentId = req.params.documentId;
             const result = await dbServices.document.deleteDocumentById(userId, parseInt(documentId));
-            if (result) {
-                res.status(200).json({ status:true,message: "Document deleted successfully" });
-            } else {
-                res.status(404).json({status:false, message: "Document not found or not authorized to delete" });
+            if(!result){
+                throw new Error("Invalid document")
             }
+            res.status(200).send({ status:true,message: "Document deleted successfully" });  
         } catch (error:any) {
-            res.status(500).json({status:false, error: error.message });
+            logger.error(`Error in deleting document:${error.mesage}`)
+            res.status(500).send({status:false, error: error.message });
         }
     };
 
@@ -89,11 +107,12 @@ export default class document{
             const documentId = req.params.documentId;
             const result = await dbServices.document.updateIsFavoriteByDocumentId(userId, parseInt(documentId));
             if (result) {
-                res.status(200).json({status:true, message: "Document isFavorite updated successfully"});
+                res.status(200).send({status:true, message: "Document isFavorite updated successfully"});
             } else {
-                res.status(400).json({status:false,message: "Unauthorized User",});
+                throw new Error("Unauthorized User")
             }
         } catch (error) {
+            logger.error(`Error in is Favorite:${error.mesage}`)
             res.status(500).json({status:false, error: error.message });
         }
     };
@@ -103,12 +122,11 @@ export default class document{
         try{
             const userId = req.user.userId;
             const documentId = req.params.documentId;
-            if(!userId || !documentId){
-                res.status(500).send({status:false,messsage:"Unauthorized User"})
-            }
+            if(!userId) throw new Error('Unauthorized User')
             const result = await dbServices.document.getDocumentsById(userId,parseInt(documentId))
-            res.status(200).send({status:true,message:"Get Documnet Successfully",result})
+            res.status(201).send({status:true,message:"Get Document Successfully",result})
         }catch(error:any){
+            logger.error(`Error in getting Document:${error.mesage}`)
             res.status(500).json({status:false, error: error.message});
         }
     }
@@ -118,14 +136,13 @@ export default class document{
             const userId = req.user.userId;
             const documentId = req.params.documentId
             const content = req.body.content
-            if(!content || !documentId || !userId){
-                res.status(500).send({message:"Unauthorized",status:false})
-            }
+            if(!userId) throw new Error('Unauthorized User')
             const updateDoc:any = await dbServices.document.updateDoc(userId,parseInt(documentId),content)
             const wordCount = content?.split(/\s+/).filter((word:any) => word.length > 0).length;
             updateDoc[0].wordCount = wordCount
             res.status(200).send({message:"Document Updated Successfully",status:true,data:updateDoc[0]})
         }catch(error:any){
+            logger.error(`Error in updating Document:${error.mesage}`)
             res.status(500).send({message:error.message,status:false})
         }
     }
@@ -136,12 +153,11 @@ export default class document{
             const userId = req.user.userId;
             const documentId = req.params.documentId
             const content = req.body.content
-            if(!content || !documentId || !userId){
-                res.status(500).send({message:"Unauthorized",status:false})
-            }
+            if(!userId) throw new Error('Unauthorized User')
             const updateDoc:any = await dbServices.document.updateResearch(userId,parseInt(documentId),content) 
             res.status(200).send({message:"Research Updated Successfully",status:true,data:updateDoc[0]})
         } catch (error) { 
+            logger.error(`Error in updating research:${error.mesage}`)
             res.status(500).send({message:error.message,status:false})
         }
     }
@@ -153,12 +169,11 @@ export default class document{
             const userId = req.user.userId;
             const documentId = req.params.documentId
             const index = req.query.index.toString()
-            if(!index || !documentId || !userId){
-                res.status(500).send({message:"Unauthorized",status:false})
-            }
+            if(!userId) throw new Error('Unauthorized User')
             const deletedDoc=await dbServices.document.deleteResearch(userId,parseInt(documentId),parseInt(index)) 
             res.status(200).send({message:"Research deleted Successfully",status:true,data:deletedDoc})
         } catch (error) {  
+            logger.error(`Error in deleting research:${error.mesage}`)
             res.status(500).send({message:error.message,status:false})
         }
     }

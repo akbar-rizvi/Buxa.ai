@@ -1,7 +1,7 @@
 import postgresdb from "../../config/db";
-import mongoose from "mongoose";
 import { documents, users } from "../../models/schema";
-import {and, desc, eq, inArray, sql,ne,asc} from "drizzle-orm";
+import {and, eq, sql,} from "drizzle-orm";
+import { text } from "drizzle-orm/mysql-core";
 
 
 
@@ -10,7 +10,6 @@ export default class document{
         try {
             return await postgresdb.transaction(async (tx) => {
                 const userDetails = await postgresdb.select().from(users).where(eq(users.id,userId))
-                if (userDetails[0].credits <= 0) throw new Error("Insufficent balance")
                 const newDocument = await postgresdb.insert(documents).values({
                     userId,      
                     content,     
@@ -92,7 +91,6 @@ export default class document{
         try {
             return await postgresdb.transaction(async (tx) => {
                 const userDetails = await tx.select().from(users).where(eq(users.id,userId))
-                if (userDetails[0].credits <= 0) throw new Error("Insufficent balance")
                 const data=await tx.insert(documents).values({
                         userId:userId,
                         content:content,
@@ -129,7 +127,7 @@ export default class document{
     static deleteResearch=async(userId:number,documentId:number,index:number):Promise<any>=>{
         try {
             return await postgresdb.transaction(async (tx) => {
-                const docData=await postgresdb.query.documents.findFirst({
+                const docData=await tx.query.documents.findFirst({
                     where:and(eq(documents.id,documentId),eq(documents.userId,userId)),
                     columns:{
                         content:true
@@ -137,7 +135,7 @@ export default class document{
                 })
 
                 const content=docData.content.splice(index,index)
-                return await postgresdb.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
+                return await tx.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
             })
         } catch (error) {
             throw new Error(error) 

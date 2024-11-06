@@ -83,21 +83,15 @@ export default class user{
     }
 
 
-    static userDetails = async(data:any):Promise<any>=>{
+    static userDetails = async(data:number):Promise<any>=>{
         try{
-        // console.log(data)
-    
         const details = await postgresdb.select({
             id:users.id,
             firstName:users.firstName,
             lastName:users.lastName,
             email:users.email,
             credits:users.credits
-            // image:users.image,
-            // name:users.name
-
         }).from(users).where(eq(users.id, data)).limit(1);
-        // console.log(details) 
         return details;
         }catch(e){
             throw new Error(e)

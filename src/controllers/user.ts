@@ -3,36 +3,13 @@ import dbServices from "../services/dbServices";
 import axios from "axios";
 import { envConfigs } from "../config/envConfig";
 import url from "node:url"
+import logger from "../config/logger";
 
 interface authenticateReq {
   user?: any;
   body?: any;
 }
 export default class user {
-
-  // static googleLogIn = async (req: Request, res: Response) => {
-  //   try {
-  //     const token = req.query.token;
-  //     const validateUser = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${token}`);
-  //     if (validateUser.data.verified_email == false){
-  //       res.status(500).send({status: false,message: "Unauthorized email"});
-  //     } 
-  //     const genToken = await dbServices.user.googleLogIn(validateUser.data);
-  //     const accessToken = genToken.token;
-  //     const data = genToken.user;
-  //     const { id, firstName, lastName, email, credits } = data;
-  //     const response = {
-  //       id:id,
-  //       firstName:firstName,
-  //       lastName:lastName,
-  //       email:email,
-  //       credits:parseInt(credits)
-  //     };
-  //     res.status(200).send({status: true,message: "LoggedIn",accessToken,data: response});
-  //   } catch (error: any) {
-  //     throw new Error(error);
-  //   }
-  // };
 
   static googleSignInSignUp =  async(req:Request,res:Response)=>{
     try {
@@ -54,7 +31,6 @@ export default class user {
       )
       .then((res) => res.data)
       .catch((error) => {
-        console.error(`Failed to fetch user`);
         throw new Error(error.message);
       });
       if(!email) throw new Error("Error fetching email please try again");
@@ -74,6 +50,7 @@ export default class user {
         query:{user:JSON.stringify(userDetails)}
       }));
     } catch (error) {
+      logger.error(`Error in google auth:${error.mesage}`)
       res.status(500).json({ status: false, message: error.mesage });
     }
   }
@@ -82,22 +59,27 @@ export default class user {
     try {
       const user = req.user.userId;
       if (!user) {
-       throw new Error('User not found')
+       throw new Error('Invalid user')
       }
       const data = await dbServices.user.userDetails(user);
       data[0].credits = parseInt(data[0].credits)
       res.status(200).send({ status: true, message: "user details", data: data[0] });
-    } catch (e: any) {
-      res.status(500).send({ status: false, message: e.mesage });
+    } catch (error: any) {
+      logger.error(`Error in user detail:${error.mesage}`)
+      res.status(500).send({ status: false, message: error.mesage });
     }
   };
 
   static dashboardData= async(req:authenticateReq,res:Response)=>{
     try {
       const userId=req.user.userId
+      if (!userId) {
+        throw new Error('Invalid user')
+       }
       const dashboard=await dbServices.user.dashboardData(userId)
       res.status(200).send({ status: true, message: "All dashboard data", data: dashboard });
     } catch (error) {
+      logger.error(`Error in dashboard data:${error.mesage}`)
       res.status(500).json({ status: false, message: error.mesage });
     }
   }

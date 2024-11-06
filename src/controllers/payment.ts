@@ -5,6 +5,7 @@ import axios from "axios";
 import sha256 from 'sha256';
 import uniqid from 'uniqid';
 import dbServices from "../services/dbServices";
+import logger from "../config/logger";
 
 interface AuthenticatedRequest extends Request {
   user?: any;
@@ -38,6 +39,7 @@ export class Payment {
       await dbServices.payments.insertPaymentDetails(orderDetails)
       res.status(200).send({status:true,message:"Payment Details Inserted",data:{orderId:createPayment?.id}})
     }catch(error:any){
+      logger.error(`Error in payment:${error.mesage}`)
       res.status(500).send({status:false,message:error.message})
     }
   };
@@ -66,6 +68,7 @@ export class Payment {
       }
       res.sendStatus(200);
     } catch (error) {
+      logger.error(`Error in checking payment:${error.mesage}`)
       return res.sendStatus(500); 
     }
   }
@@ -107,7 +110,7 @@ export class Payment {
       await dbServices.payments.insertPaymentDetails(details)
       res.status(200).send({status:true,message:"Payment Details Inserted",data:{orderId:createPayment?.order_id, sessionId:createPayment?.payment_session_id}})
     } catch (error:any) {
-      console.error('Error setting up order request:', error.response ? error.response.data : error.message);
+      logger.error(`Error in creating order:${error.mesage}`)
       res.status(500).json({ error: error.message });
     }
   }
@@ -135,6 +138,7 @@ export class Payment {
         res.redirect("https://0e8f-2401-4900-8843-9c99-16de-7ca9-378f-99a3.ngrok-free.app/failure")
       }
     }catch(error:any){
+      logger.error(`Error in checking status:${error.mesage}`)
       res.status(500).json({ error: error.message });
     }
   }
