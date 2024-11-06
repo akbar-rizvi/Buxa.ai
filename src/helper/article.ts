@@ -6,10 +6,9 @@ import { envConfigs } from '../config/envConfig';
 import {ChatOpenAI} from "@langchain/openai"
 
 // Initialize KeyManager with the path to your API keys file
-let KEY_MANAGER = new KeyManager('../../../groqAPIs.json');
-if (envConfigs.isDev){
-    KEY_MANAGER = new KeyManager('../../groqAPIs.json');
-}
+console.log(envConfigs.isDev)
+let KEY_MANAGER = envConfigs.isDev ? new KeyManager('../../groqAPIs.json') : new KeyManager('../../../groqAPIs.json')
+
 
 
 
