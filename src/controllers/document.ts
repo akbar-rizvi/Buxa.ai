@@ -85,7 +85,7 @@ export default class document{
             res.status(500).json({status:false, error: error.message });
         }
     };
-
+    
     static deleteDocumentByUserId = async (req: Request, res: Response):Promise<void>=> {
         try {
             const userId = req["user"].userId

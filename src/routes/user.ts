@@ -7,7 +7,7 @@ import validators from "../validators";
 
 const router = Router();
 
-router.get("/google-login",controller.user.googleSignInSignUp)
+router.get("/google-login",validateRequest(validators.auth.googleLogin),controller.user.googleSignInSignUp)
 router.get("/",authenticateUser , controller.user.userdetails )
 router.get("/dashboard",authenticateUser,controller.user.dashboardData)
 router.post("/checkout",authenticateUser,controller.Payment.payment) // not 
