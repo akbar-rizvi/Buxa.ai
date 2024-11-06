@@ -15,7 +15,8 @@ const envVarsSchema = z.object({
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
   REDIRECT_URI:z.string().url(),
-  FRONTEND_REDIRECT_URL:z.string().url()
+  FRONTEND_REDIRECT_URL:z.string().url(),
+  EXPIRE_TIME: z.number().default(7200) // 1 hour
 });
 
 const envVars = envVarsSchema.parse(process.env);
@@ -30,6 +31,7 @@ export const envConfigs = {
   },
   jwt: {
     secret: envVars.SECRET_KEY,
+  accessExpirationMinutes:envVars.EXPIRE_TIME
   },
   serperapikey:envVars.SERPER_API_KEY,
   openapikey:envVars.OPEN_API_KEY,

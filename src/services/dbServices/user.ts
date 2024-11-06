@@ -1,6 +1,7 @@
 import {  users, documents  } from "../../models/schema"
 import postgresdb from "../../config/db";
-import { setUser } from "../../config/jwt";
+
+import { generateAuthTokens } from "../../config/jwt";
 import { eq } from "drizzle-orm";
 
 
@@ -71,10 +72,10 @@ export default class user{
                     phoneNumber:'null',
                     password:'null'
                 }).returning();
-                const token = setUser({userId:user[0].id})
+                const token = generateAuthTokens({userId:user[0].id})
                 return {token:token,user:user[0]}
             }
-            const token = setUser({userId:user[0].id})
+            const token = generateAuthTokens({userId:user[0].id})
             // console.log("Registered User Token:",token)
             return {token,user:user[0]}
         }catch(error:any){
