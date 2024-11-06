@@ -1,36 +1,43 @@
-import jwt from "jsonwebtoken";
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+import moment from "moment";
+import jwt from 'jsonwebtoken'
+
 import { envConfigs } from "./envConfig";
+import { TokenTypes } from './enums';
 
 
 const secret = envConfigs.jwt.secret
 
-// Function to create a JWT for the user
-const setUser = (payload: { userId:number }) => {
-  const { userId } = payload;
-  
-  return jwt.sign(
-    {
-      userId: userId,
-    },
-    secret, 
-    {
-      expiresIn: '24h', 
-    }
+export const generateAuthTokens = (payload: { userId:number }) => {
+  const accessTokenExpires = moment().add(
+    envConfigs.jwt.accessExpirationMinutes,
+    "minutes"
   );
+  const accessToken = jwt.sign(JSON.stringify({
+    userId: payload.userId,
+    type: TokenTypes.ACCESS, // Include the token type
+    exp: accessTokenExpires.unix() // Set expiration time in UNIX timestamp format
+  }), envConfigs.jwt.secret);
+
+  return accessToken;
+}
+
+const jwtOptions = {
+  secretOrKey:secret,
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 };
 
-// Function to verify and decode the JWT
-const getUser = (token: string) => {
+
+const jwtVerify = async (payload, done) => {
   try {
-    // Remove 'Bearer ' prefix if present (usually in Authorization headers)
-    const newToken = token.startsWith("Bearer ") ? token.slice(7) : token;
-    
-    // Verify the token using the secret
-    return jwt.verify(newToken, secret);
+    if (payload.type !== TokenTypes.ACCESS) {
+      throw new Error('Invalid token type');
+    }
+    if(!payload && Object.keys(payload).length <=3 && (!payload.userId && typeof parseInt(payload.userId) !== "number") && (!payload.userName && typeof payload.userName !== "string") && !payload.isOnboarded ) throw new Error("Invalid Token"); 
+    done(null, payload);
   } catch (error) {
-    // Handle error appropriately (e.g., token invalid or expired)
-    throw new Error("Invalid token");
+    done(error, false);
   }
 };
 
-export { setUser, getUser };
+export const jwtStrategy = new JwtStrategy(jwtOptions, jwtVerify);

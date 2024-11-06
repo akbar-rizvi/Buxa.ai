@@ -1,3 +1,4 @@
+import { error } from "console";
 import postgresdb from "../../config/db";
 import { documents, users } from "../../models/schema";
 import {and, eq, sql,} from "drizzle-orm";
@@ -21,7 +22,7 @@ export default class document{
                 return {newDocument,credits}; 
             })
         } catch (error: any) {
-            throw new Error(error.message || "Failed to create document");
+            throw new Error(error || "Failed to create document");
         }
     };
 
@@ -30,9 +31,8 @@ export default class document{
         try {
             const getDocument = await postgresdb.select({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).from(documents).where(and(eq(documents.userId, userId),eq(documents.isDeleted, false))).execute();
             return getDocument;
-        } catch (erro:any) {
-            console.error(erro);
-            throw new Error(erro);
+        } catch (error:any) {
+            throw new Error(error);
         }
     };
 

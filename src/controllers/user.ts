@@ -50,6 +50,7 @@ export default class user {
         query:{user:JSON.stringify(userDetails)}
       }));
     } catch (error) {
+      console.log(error)
       logger.error(`Error in google auth:${error.mesage}`)
       res.status(500).json({ status: false, message: error.mesage });
     }
