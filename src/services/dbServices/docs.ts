@@ -128,14 +128,16 @@ export default class document{
         try {
             return await postgresdb.transaction(async (tx) => {
                 const docData=await tx.query.documents.findFirst({
-                    where:and(eq(documents.id,documentId),eq(documents.userId,userId)),
+                    where:and(eq(documents.id,documentId),eq(documents.userId,userId),eq(documents.isDeleted,false)),
                     columns:{
                         content:true
                     }
                 })
-
-                const content=docData.content.splice(index,index)
-                return await tx.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
+                if (docData==undefined) throw new Error("No Document With This DocId")
+                if (docData.content.length<=index) throw new Error("Not a valid index")
+                docData.content.splice(index,1)
+                if (docData.content.length==0) return await tx.update(documents).set({isDeleted:true,content:docData.content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({isDeleted:documents.isDeleted}).execute()
+                else return await tx.update(documents).set({content:docData.content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
             })
         } catch (error) {
             throw new Error(error) 

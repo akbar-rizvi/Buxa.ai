@@ -85,7 +85,7 @@ export default class document{
             res.status(500).json({status:false, error: error.message });
         }
     };
-    
+
     static deleteDocumentByUserId = async (req: Request, res: Response):Promise<void>=> {
         try {
             const userId = req["user"].userId
@@ -166,11 +166,12 @@ export default class document{
 
     static deleteResearch=async(req:AuthenticatedRequest,res:Response)=>{
         try {
-            const userId = req.user.userId;
+            const userId = 2;
             const documentId = req.params.documentId
             const index = req.query.index.toString()
             if(!userId) throw new Error('Unauthorized User')
             const deletedDoc=await dbServices.document.deleteResearch(userId,parseInt(documentId),parseInt(index)) 
+            // console.log("DeleteDoc:",deletedDoc)
             res.status(200).send({message:"Research deleted Successfully",status:true,data:deletedDoc})
         } catch (error) {  
             logger.error(`Error in deleting research:${error.mesage}`)
