@@ -85,10 +85,11 @@ export default class document{
         try {
             const userId = req.user.userId;
             const documents = await dbServices.document.getDocumentsByUserId(userId);
-            const responseWithWordCount = documents.map(item => ({
+            const responseWithWordCount = documents.map((item:any) => ({
                 ...item,
                 wordCount: this.countWords(item.content)
               }));
+              console.log(responseWithWordCount,"responseWithWordCount")
             res.status(200).send({status:true,message:"All documents fetched",data:responseWithWordCount});
         } catch (error) {
             logger.error(`Error in getting Document:${error.mesage}`)

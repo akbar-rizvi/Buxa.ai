@@ -85,9 +85,11 @@ export default class document{
     static updateDoc = async(userId:number,documentId:number,content:string)=>{
         try{
             if(documentId==0){
+                console.log("hey")
                 return await postgresdb.insert(documents).values({
                     content:content,
-                    userId:userId
+                    userId:userId,
+                    documentType:"article"
                 }).returning({content:documents.content,id:documents.id,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite})
             }else{
                 return await postgresdb.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
