@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken"
 
 
 
-export const publishToGhost=async(ghostAdminAPIkeys:string,html: string, title: string, slug: string, tag: string,excerpt: string,ghostURL:string,postOn:string)=> {
+export const publishToGhost=async(ghostAdminAPIkeys:string,html: string, title: string, slug: string, tag: string,excerpt: string,ghostURL:string,postOn:string,status:string)=> {
     try {
         if(postOn==="ghost"){
           const ghostAdminAPIkey = ghostAdminAPIkeys;
@@ -21,7 +21,7 @@ export const publishToGhost=async(ghostAdminAPIkeys:string,html: string, title: 
           const lexicalDataObject = await htmlToLexical(html);
           const lexicalData = JSON.stringify(lexicalDataObject)
           const payload = {
-              status: 'draft',
+              status: status,
               lexical: lexicalData,
               title: title,
               slug: slug,

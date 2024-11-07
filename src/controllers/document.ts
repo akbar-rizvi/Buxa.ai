@@ -196,6 +196,7 @@ export default class document{
             const index = req.query.index.toString()
             if(!userId) throw new Error('Unauthorized User')
             const deletedDoc=await dbServices.document.deleteResearch(userId,parseInt(documentId),parseInt(index)) 
+            // console.log(deletedDoc) 
             res.status(200).send({message:"Research deleted Successfully",status:true,data:deletedDoc})
         } catch (error) {  
             logger.error(`Error in deleting research:${error.mesage}`)
@@ -207,21 +208,22 @@ export default class document{
         try {
             const userId=req['user'].userId
             if(!userId) throw new Error('Unauthorized User')
-            const {apiKey,postOn,content,metadata,keyword,tag,ghostURL}=req.body.data
+            const {apiKey,postOn,content,metadata,keyword,tag,ghostURL,status}=req.body.data
             const data= await dbServices.user.userDetails(userId)
             if((data[0].userBlogApiKey==apiKey) && (data[0].blogUrl==ghostURL)){
                 const slug =metadata.title.split(" ").join("-")
-                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn)
-                return res.status(200).send({message:"Published Successfully"})
-            }else if((data[0].userBlogApiKey!=apiKey) && (data[0].blogUrl!=ghostURL)){
+                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn,status)
+                return res.status(200).send({status:true,message:`Blog ${status} Successfully`})
+            }else if((data[0].userBlogApiKey!=apiKey || data[0].userBlogApiKey==null) && (data[0].blogUrl!=ghostURL || data[0].blogUrl==null)){
                 await dbServices.document.updateBlogData(apiKey,ghostURL,userId)
                 const slug =metadata.title.split(" ").join("-")
-                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn)
-                return res.status(200).send({message:"Published Successfully"})
-            }
-            
+                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn,status)
+                return res.status(200).send({status:true,message:`Blog ${status} Successfully`})
+            }else{
+                throw new Error("Enter valid API")
+            }    
         } catch (error) {
-            logger.error(`Error in posting To LegalWire:${error.mesage}`)
+            logger.error(`Error in posting To LegalWire:${error}`)
             console.log(error.message)
             res.status(500).send({message:error.message,status:false}) 
         }

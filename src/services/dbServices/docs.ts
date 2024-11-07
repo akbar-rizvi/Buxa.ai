@@ -113,7 +113,7 @@ export default class document{
                             documentType:"research"
                         }).returning({id:documents.id,content:documents.content,isFavorite:documents.isFavorite,updatedAt:documents.updatedAt})
                     await tx.update(users).set({
-                        credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalResearch:sql`${userDetails[0].totalContent}+1`,cor:sql`${userDetails[0].coc}+1`
+                        credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalResearch:sql`${userDetails[0].totalResearch}+1`,cor:sql`${userDetails[0].cor}+1`
                     }).where(eq(users.id,userId))
                     return data
                 }else{
@@ -136,7 +136,7 @@ export default class document{
                         keyword:newKeyword,
                     }).where(eq(documents.id,id)).returning({id:documents.id,content:documents.content,isFavorite:documents.isFavorite,updatedAt:documents.updatedAt})
                     await tx.update(users).set({
-                        credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalResearch:sql`${userDetails[0].totalContent}+1`,cor:sql`${userDetails[0].coc}+1`
+                        credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalResearch:sql`${userDetails[0].totalResearch}+1`,cor:sql`${userDetails[0].cor}+1`
                     }).where(eq(users.id,userId))
                     return updatedData
                 }
@@ -155,7 +155,7 @@ export default class document{
                     userId:userId
                 }).returning({content:documents.content,id:documents.id,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite})
             }else{
-                return await postgresdb.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
+                return await postgresdb.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).execute()
             }
 
         } catch (error) {
@@ -165,7 +165,7 @@ export default class document{
 
     static deleteResearch=async(userId:number,documentId:number,index:number):Promise<any>=>{
         try {
-            console.log(index,";::::")
+            // console.log(index,";::::")
             return await postgresdb.transaction(async (tx) => {
                 const docData=await tx.query.documents.findFirst({
                     where:and(eq(documents.id,documentId),eq(documents.userId,userId)),
@@ -177,9 +177,9 @@ export default class document{
                 if (docData.content.length<=index) throw new Error("Invalid index")
                 docData.content.splice(index,1)
                 if(docData.content.length==0){
-                    await tx.update(documents).set({isDeleted: true}).where(and(eq(documents.id,documentId),eq(documents.userId,userId),eq(documents.isDeleted,false))).execute();
+                    return await tx.update(documents).set({isDeleted: true  }).where(and(eq(documents.id,documentId),eq(documents.userId,userId),eq(documents.isDeleted,false))).returning({id:documents.id}).execute();
                 }else{
-                    return await tx.update(documents).set({content:docData.content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
+                    return await tx.update(documents).set({content:docData.content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).execute()
                 }
                 
             })
@@ -190,11 +190,10 @@ export default class document{
 
     static updateBlogData=async(apiKey:string,ghostURL:string,userId:number)=>{
         try {
-            await postgresdb.update(documents).set({
+            await postgresdb.update(users).set({
                 userBlogApiKey:apiKey,
                 blogUrl:ghostURL
-            }).where(eq(documents.userId,userId))
-            
+            }).where(eq(users.id,userId))
         } catch (error) {
             throw new Error(error) 
         }

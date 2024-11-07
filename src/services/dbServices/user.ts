@@ -24,7 +24,6 @@ export default class user{
                 return {token:token,user:user[0]}
             }
             const token = generateAuthTokens({userId:user[0].id})
-            console.log(user,"userrrrrrrrrrrrrrrrrrrrr")
             return {token,user:user[0]}
         }catch(error:any){
             throw new Error(error)

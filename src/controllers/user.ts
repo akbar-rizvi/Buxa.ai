@@ -35,6 +35,7 @@ export default class user {
       });
       if(!email) throw new Error("Error fetching email please try again");
       const genToken = await dbServices.user.googleLogIn(email,name);
+      
       // const accessToken = genToken.token
       const userDetails = {
         id:genToken.user.id,
@@ -43,9 +44,9 @@ export default class user {
         email:genToken.user.email,
         credits:genToken.user.credits,
         accessToken:genToken.token,
-        userBlogApiKey:genToken.userBlogApiKey,
-        blogUrl:genToken.blogUrl
-      }     
+        userBlogApiKey:genToken.userBlogApiKey ?? null,
+        blogUrl:genToken.blogUrl ?? null
+      }  
       let FRONTEND_REDIRECT_URL = envConfigs.frontendRedirectUrl;
       return res.redirect(url.format({
         pathname:`${FRONTEND_REDIRECT_URL}`,
