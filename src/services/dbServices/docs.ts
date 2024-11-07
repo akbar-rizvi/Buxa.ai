@@ -17,7 +17,7 @@ export default class document{
                     metadata,     
                     keyword,
                     documentType:"article"     
-                }).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite});
+                }).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite,metadata:documents.metadata,keyword:documents.keyword});
                 const credits = await postgresdb.update(users).set({credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalContent:sql`${userDetails[0].totalContent}+1`,coc:sql`${userDetails[0].coc}+1`}).where(eq(users.id,userId)).returning({credits:users.credits}).execute()
                 return {newDocument,credits}; 
             })
@@ -183,6 +183,18 @@ export default class document{
                 }
                 
             })
+        } catch (error) {
+            throw new Error(error) 
+        }
+    }
+
+    static updateBlogData=async(apiKey:string,ghostURL:string,userId:number)=>{
+        try {
+            await postgresdb.update(documents).set({
+                userBlogApiKey:apiKey,
+                blogUrl:ghostURL
+            }).where(eq(documents.userId,userId))
+            
         } catch (error) {
             throw new Error(error) 
         }

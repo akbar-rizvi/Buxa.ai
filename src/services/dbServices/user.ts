@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm";
 export default class user{
 
     
-    static googleLogIn = async(email:string,name:string)=>{
+    static googleLogIn = async(email:string,name:string):Promise<any>=>{
         try{
             const user:any= await postgresdb.select().from(users).where(eq(users.email, email)).limit(1);
             if (user.length <= 0) {
@@ -24,6 +24,7 @@ export default class user{
                 return {token:token,user:user[0]}
             }
             const token = generateAuthTokens({userId:user[0].id})
+            console.log(user,"userrrrrrrrrrrrrrrrrrrrr")
             return {token,user:user[0]}
         }catch(error:any){
             throw new Error(error)
@@ -38,7 +39,9 @@ export default class user{
             firstName:users.firstName,
             lastName:users.lastName,
             email:users.email,
-            credits:users.credits
+            credits:users.credits,
+            userBlogApiKey:users.userBlogApiKey,
+            blogUrl:users.blogUrl
         }).from(users).where(eq(users.id, data)).limit(1);
         return details;
         }catch(error){

@@ -6,6 +6,7 @@ import {marked} from "marked"
 import { extractExcerptAndKeywords } from "../helper/documentKywordFilter";
 import { researchArticle } from "../helper/research";
 import logger from "../config/logger";
+import { publishToGhost } from "../helper/blog-publication";
 
 interface AuthenticatedRequest extends Request {
     user?: any;
@@ -89,7 +90,6 @@ export default class document{
                 ...item,
                 wordCount: this.countWords(item.content)
               }));
-              console.log(responseWithWordCount,"responseWithWordCount")
             res.status(200).send({status:true,message:"All documents fetched",data:responseWithWordCount});
         } catch (error) {
             logger.error(`Error in getting Document:${error.mesage}`)
@@ -200,6 +200,30 @@ export default class document{
         } catch (error) {  
             logger.error(`Error in deleting research:${error.mesage}`)
             res.status(500).send({message:error.message,status:false})
+        }
+    }
+
+    static postToLegalWire=async(req:Request,res:Response):Promise<any>=>{
+        try {
+            const userId=req['user'].userId
+            if(!userId) throw new Error('Unauthorized User')
+            const {apiKey,postOn,content,metadata,keyword,tag,ghostURL}=req.body.data
+            const data= await dbServices.user.userDetails(userId)
+            if((data[0].userBlogApiKey==apiKey) && (data[0].blogUrl==ghostURL)){
+                const slug =metadata.title.split(" ").join("-")
+                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn)
+                return res.status(200).send({message:"Published Successfully"})
+            }else if((data[0].userBlogApiKey!=apiKey) && (data[0].blogUrl!=ghostURL)){
+                await dbServices.document.updateBlogData(apiKey,ghostURL,userId)
+                const slug =metadata.title.split(" ").join("-")
+                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn)
+                return res.status(200).send({message:"Published Successfully"})
+            }
+            
+        } catch (error) {
+            logger.error(`Error in posting To LegalWire:${error.mesage}`)
+            console.log(error.message)
+            res.status(500).send({message:error.message,status:false}) 
         }
     }
 }

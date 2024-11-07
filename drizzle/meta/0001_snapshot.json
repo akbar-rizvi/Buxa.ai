@@ -1,6 +1,6 @@
 {
-  "id": "569be732-dc01-4118-a053-344f55ad8648",
-  "prevId": "bb5ce498-de68-4fc2-b6d2-6bbb0f5f206a",
+  "id": "4c0fbb14-2061-43f9-8fdf-defd36c348dc",
+  "prevId": "f07e63c5-c004-4d85-8f2a-520020ca34fe",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -287,6 +287,18 @@
         "refresh_token": {
           "name": "refresh_token",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_blog_api": {
+          "name": "user_blog_api",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "blog_url": {
+          "name": "blog_url",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },

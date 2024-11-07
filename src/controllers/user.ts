@@ -42,7 +42,9 @@ export default class user {
         lastName:genToken.user.lastName,
         email:genToken.user.email,
         credits:genToken.user.credits,
-        accessToken:genToken.token
+        accessToken:genToken.token,
+        userBlogApiKey:genToken.userBlogApiKey,
+        blogUrl:genToken.blogUrl
       }     
       let FRONTEND_REDIRECT_URL = envConfigs.frontendRedirectUrl;
       return res.redirect(url.format({
