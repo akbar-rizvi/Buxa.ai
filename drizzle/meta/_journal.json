@@ -15,6 +15,20 @@
       "when": 1730977779500,
       "tag": "0001_thankful_joshua_kane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731047567128,
+      "tag": "0002_thin_red_skull",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731065740365,
+      "tag": "0003_overrated_klaw",
+      "breakpoints": true
     }
   ]
 }

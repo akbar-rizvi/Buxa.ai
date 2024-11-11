@@ -67,7 +67,65 @@ export default class validators {
     body: z.object({}).strict(),   
     params: z.object({}).strict(),  
     query: z.object({}).strict(),  
-});
+  });
+
+  static getAllBlogData = z.object({
+    body: z.object({}).strict(),   
+    params: z.object({}).strict(),  
+    query: z.object({}).strict(),  
+  });
+
+  static userdetails = z.object({
+    body: z.object({}).strict(),   
+    params: z.object({}).strict(),  
+    query: z.object({}).strict(),  
+  });
+
+  static getResearchbyUserId = z.object({
+    body: z.object({}).strict(),   
+    params: z.object({}).strict(),  
+    query: z.object({}).strict(),  
+  });
+
+  static googleLogin = z.object({
+    body: z.object({
+      
+    }).strict(),
+    params: z.object({}).strict(),
+    query: z.object({
+      code: z.string({required_error: "code is required"})
+    }).strict(),
+  }).strict();
+
+  static createBlogaPI = z.object({
+    body: z.object({
+      data: z.object({
+        blogUrl: z.string({required_error:"Blog Url is required"}),
+        blogApi: z.string({required_error:"Blog Api is required"})
+      }).strict()
+    }).strict(),   
+    params: z.object({}).strict(),  
+    query: z.object({}).strict(),  
+  });
+
+  static postToBlogSite = z.object({
+    body: z.object({
+      data: z.object({
+        apiKey: z.string({required_error:"API key is required"}),
+        postOn: z.string({required_error:"Post on is required"}), 
+        content: z.string({required_error:"Content is required"}),
+        metadata: z.object({
+          title: z.string({required_error:"Title is required"})
+        }).strict(),
+        keyword: z.object({
+          excerpt: z.string({required_error:"Excerpt is required"})
+        }).strict(),
+        tag: z.string({required_error:"Tag is required"}),
+        ghostURL: z.string().url({ message: "Invalid URL format" }),
+        status: z.enum(["Draft", "Published"], { message: "Status must be either 'Draft' or 'Published'" })
+      }).strict()
+    }).strict()
+  });
 
   static deleteDocumentById = z.object({
     body: z.object({}).strict(),  
@@ -145,13 +203,4 @@ static createResearch = z.object({
     id:z.string({required_error:"Id is required"})
   }).strict(),
 });
-
-
-static googleLogin = z.object({
-  body: z.object({
-    code: z.string({required_error: "code is required"})
-  }).strict(),
-  params: z.object({}).strict(),
-  query: z.object({}).strict({message:"query is not required"}),
-}).strict();
 }

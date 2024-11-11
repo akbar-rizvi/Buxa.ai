@@ -38,9 +38,7 @@ export default class user{
             firstName:users.firstName,
             lastName:users.lastName,
             email:users.email,
-            credits:users.credits,
-            userBlogApiKey:users.userBlogApiKey,
-            blogUrl:users.blogUrl
+            credits:users.credits
         }).from(users).where(eq(users.id, data)).limit(1);
         return details;
         }catch(error){

@@ -1,6 +1,6 @@
 import { error } from "console";
 import postgresdb from "../../config/db";
-import { documents, users } from "../../models/schema";
+import { blogApis, documents, users } from "../../models/schema";
 import {and, eq, sql,} from "drizzle-orm";
 import { text } from "drizzle-orm/mysql-core";
 
@@ -188,14 +188,27 @@ export default class document{
         }
     }
 
-    static updateBlogData=async(apiKey:string,ghostURL:string,userId:number)=>{
+    static createBlogaPI=async(userId:number,data:any)=>{
         try {
-            await postgresdb.update(users).set({
-                userBlogApiKey:apiKey,
-                blogUrl:ghostURL
-            }).where(eq(users.id,userId))
+            await postgresdb.insert(blogApis).values({
+                userId:userId,
+                blogSite:data.blogSite,
+                blogType:data.blogType
+            }) 
         } catch (error) {
             throw new Error(error) 
         }
     }
+
+    static getAllBlogData=async(userId:number):Promise<any>=>{
+        try {
+            return await postgresdb.query.blogApis.findMany({
+                where:eq(blogApis.userId,userId)
+            })
+            
+        } catch (error) {
+            throw new Error(error)  
+        }
+    }
+    
 }

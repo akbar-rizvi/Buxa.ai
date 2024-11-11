@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken"
 
 
 
-export const publishToGhost=async(ghostAdminAPIkeys:string,html: string, title: string, slug: string, tag: string,excerpt: string,ghostURL:string,postOn:string,status:string)=> {
+export const publishToGhost=async(ghostAdminAPIkeys:string,html: string, title: string, slug: string, tag: string,excerpt: string,ghostURL:string,postOn:string)=> {
     try {
         if(postOn==="ghost"){
           const ghostAdminAPIkey = ghostAdminAPIkeys;
@@ -21,18 +21,21 @@ export const publishToGhost=async(ghostAdminAPIkeys:string,html: string, title: 
           const lexicalDataObject = await htmlToLexical(html);
           const lexicalData = JSON.stringify(lexicalDataObject)
           const payload = {
-              status: status,
+              status: "draft",
               lexical: lexicalData,
               title: title,
               slug: slug,
               custom_excerpt: excerpt,
-              tags: [{ name: 'buzz' }],
+              tags: [{ name: tag }],
               authors: [
                   {
                       slug: 'legal-wires'
                   }
               ]
           }
+          console.log("gl",ghostURL)
+          console.log("token",token)
+          console.log("payload",payload )
           const feedData = await axios.post(`${ghostURL}/ghost/api/admin/posts/`, { posts: [payload] }, {
               headers: {
                   Authorization: `Ghost ${token}`
