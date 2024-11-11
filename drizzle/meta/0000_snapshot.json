@@ -1,5 +1,5 @@
 {
-  "id": "bb5ce498-de68-4fc2-b6d2-6bbb0f5f206a",
+  "id": "f07e63c5-c004-4d85-8f2a-520020ca34fe",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -35,6 +35,12 @@
         "keyword": {
           "name": "keyword",
           "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "document_type": {
+          "name": "document_type",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -228,6 +234,55 @@
           "primaryKey": false,
           "notNull": false,
           "default": 50
+        },
+        "used_credits": {
+          "name": "used_credits",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "total_content": {
+          "name": "total_content",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "total_research": {
+          "name": "total_research",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "total_alerts": {
+          "name": "total_alerts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "credits_on_content": {
+          "name": "credits_on_content",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "credits_on_research": {
+          "name": "credits_on_research",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "credits_on_alerts": {
+          "name": "credits_on_alerts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
         },
         "refresh_token": {
           "name": "refresh_token",

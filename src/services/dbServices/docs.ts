@@ -17,7 +17,7 @@ export default class document{
                     metadata,     
                     keyword,
                     documentType:"article"     
-                }).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite});
+                }).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite,metadata:documents.metadata,keyword:documents.keyword});
                 const credits = await postgresdb.update(users).set({credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalContent:sql`${userDetails[0].totalContent}+1`,coc:sql`${userDetails[0].coc}+1`}).where(eq(users.id,userId)).returning({credits:users.credits}).execute()
                 return {newDocument,credits}; 
             })
@@ -29,12 +29,23 @@ export default class document{
 
     static getDocumentsByUserId = async (userId: number): Promise<any> => {
         try {
-            const getDocument = await postgresdb.select({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).from(documents).where(and(eq(documents.userId, userId),eq(documents.isDeleted, false))).execute();
+            const getDocument = await postgresdb.select({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).from(documents).where(and(eq(documents.userId, userId),eq(documents.isDeleted, false),eq(documents.documentType,"article"))).execute();
             return getDocument;
         } catch (error:any) {
             throw new Error(error);
         }
     };
+
+    static getResearchbyUserId=async(userId:number):Promise<any>=>{
+        try {
+            return postgresdb.query.documents.findMany({
+                where:and(eq(documents.userId,userId),eq(documents.documentType,"research"),eq(documents.isDeleted,false))
+            })
+            
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
 
     static deleteDocumentById = async (userId: number, documentId: number): Promise<boolean> => {
         try {
@@ -74,9 +85,11 @@ export default class document{
     static updateDoc = async(userId:number,documentId:number,content:string)=>{
         try{
             if(documentId==0){
+                console.log("hey")
                 return await postgresdb.insert(documents).values({
                     content:content,
-                    userId:userId
+                    userId:userId,
+                    documentType:"article"
                 }).returning({content:documents.content,id:documents.id,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite})
             }else{
                 return await postgresdb.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
@@ -87,21 +100,47 @@ export default class document{
     }
 
 
-    static createResearch=async(userId:number,metaData:any,researchJson:any,content:any):Promise<any>=>{
+    static createResearch=async(userId:number,metaData:any,researchJson:any,content:any,id:number):Promise<any>=>{
         try {
             return await postgresdb.transaction(async (tx) => {
-                const userDetails = await tx.select().from(users).where(eq(users.id,userId))
-                const data=await tx.insert(documents).values({
-                        userId:userId,
-                        content:content,
-                        metadata:metaData,
-                        keyword:researchJson,
-                        documentType:"research"
-                    }).returning({id:documents.id,content:documents.content,isFavorite:documents.isFavorite,updatedAt:documents.updatedAt})
-                await tx.update(users).set({
-                    credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalResearch:sql`${userDetails[0].totalContent}+1`,cor:sql`${userDetails[0].coc}+1`
-                }).where(eq(users.id,userId))
-                return data
+                if(id==0){
+                    const userDetails = await tx.select().from(users).where(eq(users.id,userId))
+                    const data=await tx.insert(documents).values({
+                            userId:userId,
+                            content:content,
+                            metadata:metaData,
+                            keyword:researchJson,
+                            documentType:"research"
+                        }).returning({id:documents.id,content:documents.content,isFavorite:documents.isFavorite,updatedAt:documents.updatedAt})
+                    await tx.update(users).set({
+                        credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalResearch:sql`${userDetails[0].totalResearch}+1`,cor:sql`${userDetails[0].cor}+1`
+                    }).where(eq(users.id,userId))
+                    return data
+                }else{
+                    const userDetails = await tx.select().from(users).where(eq(users.id,userId))
+                    const data= await tx.query.documents.findFirst({
+                        where:eq(documents.id,id),
+                        columns:{
+                            content:true,
+                            metadata:true,
+                            keyword:true
+                        }
+                    })
+                    const newContent=[...data.content,...content]
+                    let metadata=[]
+                    metadata.push(data.metadata,metaData)
+                    const newKeyword=[...data.keyword,...researchJson]
+                    const updatedData=await tx.update(documents).set({
+                        content:newContent,
+                        metadata:metadata,
+                        keyword:newKeyword,
+                    }).where(eq(documents.id,id)).returning({id:documents.id,content:documents.content,isFavorite:documents.isFavorite,updatedAt:documents.updatedAt})
+                    await tx.update(users).set({
+                        credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalResearch:sql`${userDetails[0].totalResearch}+1`,cor:sql`${userDetails[0].cor}+1`
+                    }).where(eq(users.id,userId))
+                    return updatedData
+                }
+                
             })
         } catch (error) {
             throw new Error(error)
@@ -116,7 +155,7 @@ export default class document{
                     userId:userId
                 }).returning({content:documents.content,id:documents.id,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite})
             }else{
-                return await postgresdb.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
+                return await postgresdb.update(documents).set({content:content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).execute()
             }
 
         } catch (error) {
@@ -126,6 +165,7 @@ export default class document{
 
     static deleteResearch=async(userId:number,documentId:number,index:number):Promise<any>=>{
         try {
+            // console.log(index,";::::")
             return await postgresdb.transaction(async (tx) => {
                 const docData=await tx.query.documents.findFirst({
                     where:and(eq(documents.id,documentId),eq(documents.userId,userId),eq(documents.isDeleted,false)),
@@ -133,12 +173,27 @@ export default class document{
                         content:true
                     }
                 })
-                if (docData==undefined) throw new Error("No Document With This DocId")
-                if (docData.content.length<=index) throw new Error("Not a valid index")
+                if (docData==undefined) throw new Error("Invalid Document")
+                if (docData.content.length<=index) throw new Error("Invalid index")
                 docData.content.splice(index,1)
-                if (docData.content.length==0) return await tx.update(documents).set({isDeleted:true,content:docData.content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({isDeleted:documents.isDeleted}).execute()
-                else return await tx.update(documents).set({content:docData.content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,userId:documents.userId}).execute()
+                if(docData.content.length==0){
+                    return await tx.update(documents).set({isDeleted: true  }).where(and(eq(documents.id,documentId),eq(documents.userId,userId),eq(documents.isDeleted,false))).returning({id:documents.id}).execute();
+                }else{
+                    return await tx.update(documents).set({content:docData.content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).execute()
+                }
+                
             })
+        } catch (error) {
+            throw new Error(error) 
+        }
+    }
+
+    static updateBlogData=async(apiKey:string,ghostURL:string,userId:number)=>{
+        try {
+            await postgresdb.update(users).set({
+                userBlogApiKey:apiKey,
+                blogUrl:ghostURL
+            }).where(eq(users.id,userId))
         } catch (error) {
             throw new Error(error) 
         }

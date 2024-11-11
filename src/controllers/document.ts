@@ -6,6 +6,7 @@ import {marked} from "marked"
 import { extractExcerptAndKeywords } from "../helper/documentKywordFilter";
 import { researchArticle } from "../helper/research";
 import logger from "../config/logger";
+import { publishToGhost } from "../helper/blog-publication";
 
 interface AuthenticatedRequest extends Request {
     user?: any;
@@ -18,6 +19,7 @@ export default class document{
     static createDocument = async (req: AuthenticatedRequest, res: Response):Promise<any> => {
         try {
             const UserId= req.user.userId;
+            console.log(UserId);
             if(!UserId){
                 throw new Error("Invalid User")
             }
@@ -53,6 +55,7 @@ export default class document{
     static createResearch=async(req:Request,res:Response)=>{
         try {
             const userId=req["user"].userId
+            const docId=req.query.id.toString()
             if(!userId){
                 throw new Error("Invalid User")
             }
@@ -63,7 +66,7 @@ export default class document{
             const {metadata}=req.body
             const research= await researchArticle(metadata.topic,metadata.timeRange,metadata.deepDive)
             let researchFormatted=await Promise.all(research.articleContentArray.map((content)=>marked(content.replace(/#/g, ''))))
-            const data=await dbServices.document.createResearch(userId,metadata,research.allArticles,researchFormatted)
+            const data=await dbServices.document.createResearch(userId,metadata,research.allArticles,researchFormatted,parseInt(docId))
             res.status(200).send({status:true,message:"Document Created Successfully",data:data});
         } catch (error) {
             logger.error(`Error in create Research:${error.mesage}`)
@@ -71,20 +74,42 @@ export default class document{
         }
     }
 
+    static countWords(content: string): number {
+        // Ensure content is a string before processing
+        const plainText = String(content).replace(/<[^>]*>/g, ''); // Remove HTML tags
+        const words = plainText.trim().split(/\s+/); // Split by whitespace
+        return words.filter(word => word.length > 0).length; // Count non-empty words
+      }
+
 
     static getDocumentsByUserId = async (req: AuthenticatedRequest, res: Response) => {
         try {
             const userId = req.user.userId;
             const documents = await dbServices.document.getDocumentsByUserId(userId);
-            const docWithWords = documents.map((document:any)=>{
-                return {...document,words:document.content.split(/\s+/).filter((word: string | any[]) => word.length > 0).length}
-            })
-            res.status(200).send({status:true,message:"All documents fetched",data:docWithWords});
+            const responseWithWordCount = documents.map((item:any) => ({
+                ...item,
+                wordCount: this.countWords(item.content)
+              }));
+            res.status(200).send({status:true,message:"All documents fetched",data:responseWithWordCount});
         } catch (error) {
             logger.error(`Error in getting Document:${error.mesage}`)
             res.status(500).json({status:false, error: error.message });
         }
     };
+
+    static getResearchbyUserId=async(req:AuthenticatedRequest,res:Response)=>{
+        try {
+            const userId = req.user.userId;
+            if(!userId){
+                throw new Error("Invalid User")
+            }
+            const researchData=await dbServices.document.getResearchbyUserId(userId)
+            res.status(200).send({status:true,message:"All research fetched",data:researchData});
+        } catch (error) {
+            logger.error(`Error in getting Research:${error.mesage}`)
+            res.status(500).json({status:false, error: error.message });
+        }
+    }
 
     static deleteDocumentByUserId = async (req: Request, res: Response):Promise<void>=> {
         try {
@@ -171,11 +196,36 @@ export default class document{
             const index = req.query.index.toString()
             if(!userId) throw new Error('Unauthorized User')
             const deletedDoc=await dbServices.document.deleteResearch(userId,parseInt(documentId),parseInt(index)) 
-            // console.log("DeleteDoc:",deletedDoc)
+            // console.log(deletedDoc) 
             res.status(200).send({message:"Research deleted Successfully",status:true,data:deletedDoc})
         } catch (error) {  
             logger.error(`Error in deleting research:${error.mesage}`)
             res.status(500).send({message:error.message,status:false})
+        }
+    }
+
+    static postToLegalWire=async(req:Request,res:Response):Promise<any>=>{
+        try {
+            const userId=req['user'].userId
+            if(!userId) throw new Error('Unauthorized User')
+            const {apiKey,postOn,content,metadata,keyword,tag,ghostURL,status}=req.body.data
+            const data= await dbServices.user.userDetails(userId)
+            if((data[0].userBlogApiKey==apiKey) && (data[0].blogUrl==ghostURL)){
+                const slug =metadata.title.split(" ").join("-")
+                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn,status)
+                return res.status(200).send({status:true,message:`Blog ${status} Successfully`})
+            }else if((data[0].userBlogApiKey!=apiKey || data[0].userBlogApiKey==null) && (data[0].blogUrl!=ghostURL || data[0].blogUrl==null)){
+                await dbServices.document.updateBlogData(apiKey,ghostURL,userId)
+                const slug =metadata.title.split(" ").join("-")
+                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn,status)
+                return res.status(200).send({status:true,message:`Blog ${status} Successfully`})
+            }else{
+                throw new Error("Enter valid API")
+            }    
+        } catch (error) {
+            logger.error(`Error in posting To LegalWire:${error}`)
+            console.log(error.message)
+            res.status(500).send({message:error.message,status:false}) 
         }
     }
 }

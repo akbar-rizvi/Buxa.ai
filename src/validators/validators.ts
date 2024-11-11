@@ -105,6 +105,16 @@ export default class validators {
 
   static updateDocument = z.object({
     body: z.object({
+        content: z.string(), // Validates that 'content' is a non-empty string
+    }),
+    params: z.object({
+        documentId: z.string()
+    }),
+    query: z.object({}).strict(),
+});
+
+  static updateResearch = z.object({
+    body: z.object({
         content: z.array(z.string()), // Validates that 'content' is a non-empty string
     }),
     params: z.object({
@@ -131,7 +141,9 @@ static createResearch = z.object({
     })
     .strict(),
   params: z.object({}).strict(),
-  query: z.object({}).strict(),
+  query: z.object({
+    id:z.string({required_error:"Id is required"})
+  }).strict(),
 });
 
 

@@ -18,6 +18,8 @@ export const users:any = pgTable('userss', {
     cor:integer("credits_on_research").default(0),
     coa:integer("credits_on_alerts").default(0),
     refreshToken: text('refresh_token'),
+    userBlogApiKey:varchar("user_blog_api"),
+    blogUrl:varchar("blog_url"),
     createdAt: timestamp('created_at').default(sql`NOW()`),
     updatedAt: timestamp('updated_at').default(sql`NOW()`),
 }, (table) => ({

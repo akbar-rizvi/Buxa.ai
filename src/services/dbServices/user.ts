@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm";
 export default class user{
 
     
-    static googleLogIn = async(email:string,name:string)=>{
+    static googleLogIn = async(email:string,name:string):Promise<any>=>{
         try{
             const user:any= await postgresdb.select().from(users).where(eq(users.email, email)).limit(1);
             if (user.length <= 0) {
@@ -38,7 +38,9 @@ export default class user{
             firstName:users.firstName,
             lastName:users.lastName,
             email:users.email,
-            credits:users.credits
+            credits:users.credits,
+            userBlogApiKey:users.userBlogApiKey,
+            blogUrl:users.blogUrl
         }).from(users).where(eq(users.id, data)).limit(1);
         return details;
         }catch(error){
@@ -48,7 +50,7 @@ export default class user{
 
     static dashboardData=async(userId:number):Promise<any>=>{
         try {
-            return await postgresdb.query.users.findFirst({
+            return postgresdb.query.users.findFirst({
                 where:eq(users.id,userId),
                 columns:{
                     credits:true,
@@ -68,13 +70,13 @@ export default class user{
                             createdAt:true
                         }
                     },
-                    alert:{
-                        columns:{
-                            alertContent:true,
-                            createdAt:true,
-                            metaData:true
-                        }
-                    }
+                //     alert:{
+                //         columns:{
+                //             alertContent:true,
+                //             createdAt:true,
+                //             metaData:true
+                //         }
+                //     }
                 }
             })
         } catch (error) {
