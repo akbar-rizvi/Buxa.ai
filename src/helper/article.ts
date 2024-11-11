@@ -7,7 +7,7 @@ import {ChatOpenAI} from "@langchain/openai"
 
 // Initialize KeyManager with the path to your API keys file
 console.log(envConfigs.isDev)
-let KEY_MANAGER = envConfigs.isDev ? new KeyManager('../../groqAPIs.json') : new KeyManager('../../../groqAPIs.json')
+let KEY_MANAGER = envConfigs.isDev ? new KeyManager('../../../groqAPIs.json') : new KeyManager('../../../groqAPIs.json')
 
 const SERPER_API_KEY = envConfigs.serperapikey;
 const GROQ_API_KEY1 = KEY_MANAGER.getNextKey() 

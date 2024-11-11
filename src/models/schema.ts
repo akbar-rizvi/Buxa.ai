@@ -18,8 +18,6 @@ export const users:any = pgTable('userss', {
     cor:integer("credits_on_research").default(0),
     coa:integer("credits_on_alerts").default(0),
     refreshToken: text('refresh_token'),
-    userBlogApiKey:varchar("user_blog_api"),
-    blogUrl:varchar("blog_url"),
     createdAt: timestamp('created_at').default(sql`NOW()`),
     updatedAt: timestamp('updated_at').default(sql`NOW()`),
 }, (table) => ({
@@ -27,7 +25,7 @@ export const users:any = pgTable('userss', {
 }));
 
 export const documents:any = pgTable('documents', {
-    id: serial('id').primaryKey(),
+    id: serial('id'),
     userId: integer('user_id').references(() => users.id).notNull(),
     content: jsonb('content').notNull(),
     metadata: jsonb('metadata'), 
@@ -41,6 +39,15 @@ export const documents:any = pgTable('documents', {
 }, (table) => ({
   pk: primaryKey({ columns: [table.id] }),
 }));
+
+
+export const blogApis= pgTable('blog_api',{
+  id: serial('id'),
+  userId: integer('user_id').references(() => users.id),
+  blogType:varchar("blog_type"),
+  blogSite:jsonb("blog_site"),
+  createdAt:timestamp('created_at').default(sql`NOW()`)
+})
 
 // export const alert=pgTable("alert",{
 //   id:serial("id"),
@@ -80,6 +87,7 @@ export const paymentRelation = relations(payment, ({ one }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   documents: many(documents, { relationName: 'documents' }),
   payments: many(payment, { relationName: 'payments' }),
+  blogApis : many(blogApis,{relationName: 'blogApis'})
   // alerts: many(alert, { relationName: 'alerts' })
 }));
 
@@ -98,4 +106,12 @@ export const documentsRelations = relations(documents, ({ one }) => ({
 //     relationName: 'alerts'
 //   })
 // }))
+
+export const blogApisRelations = relations(blogApis, ({ one }) => ({
+  user: one(users, {
+    fields: [blogApis.userId],
+    references: [users.id],
+    relationName: 'blogApis'
+  })
+}))
 

@@ -14,7 +14,6 @@ export default class user {
   static googleSignInSignUp =  async(req:Request,res:Response)=>{
     try {
       const token = req.query.code;
-      console.log(token,"::::")
       let clientId = envConfigs.googleClientId;
       let clientSecret = envConfigs.googleClientSecret;
       let REDIRECT_URI = envConfigs.redirecturl;

@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { spawn } from 'child_process';
 import dbServices from "../services/dbServices";
 import { aiWriter } from "../helper/article";
 import {marked} from "marked"
@@ -204,27 +203,41 @@ export default class document{
         }
     }
 
-    static postToLegalWire=async(req:Request,res:Response):Promise<any>=>{
+    static postToBlogSite=async(req:Request,res:Response)=>{
         try {
             const userId=req['user'].userId
             if(!userId) throw new Error('Unauthorized User')
-            const {apiKey,postOn,content,metadata,keyword,tag,ghostURL,status}=req.body.data
-            const data= await dbServices.user.userDetails(userId)
-            if((data[0].userBlogApiKey==apiKey) && (data[0].blogUrl==ghostURL)){
-                const slug =metadata.title.split(" ").join("-")
-                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn,status)
-                return res.status(200).send({status:true,message:`Blog ${status} Successfully`})
-            }else if((data[0].userBlogApiKey!=apiKey || data[0].userBlogApiKey==null) && (data[0].blogUrl!=ghostURL || data[0].blogUrl==null)){
-                await dbServices.document.updateBlogData(apiKey,ghostURL,userId)
-                const slug =metadata.title.split(" ").join("-")
-                await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn,status)
-                return res.status(200).send({status:true,message:`Blog ${status} Successfully`})
-            }else{
-                throw new Error("Enter valid API")
-            }    
+            const {apiKey,postOn,content,metadata,keyword,tag,ghostURL}=req.body.data
+            const slug =metadata.title.split(" ").join("-")
+            await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn)
+            res.status(200).send({status:true,message:`Blog ${status} Successfully`})
         } catch (error) {
             logger.error(`Error in posting To LegalWire:${error}`)
             console.log(error.message)
+            res.status(500).send({message:error.message,status:false}) 
+        }
+    }
+
+    static createBlogaPI=async(req:Request,res:Response)=>{
+        try {
+            const userId=req['user'].userId
+            if(!userId) throw new Error('Unauthorized User')
+            await dbServices.document.createBlogaPI(userId,req.body.data)
+            res.status(200).send({status:true,message:`Created Successfully`})
+        } catch (error) {
+            logger.error(`Error in posting To LegalWire:${error}`)
+            res.status(500).send({message:error.message,status:false}) 
+        }
+    }
+
+    static getAllBlogData=async(req:Request,res:Response)=>{
+        try {
+            const userId=req['user'].userId
+            if(!userId) throw new Error('Unauthorized User')
+            const getAllBlogData=await dbServices.document.getAllBlogData(userId)
+            res.status(200).send({status:true,message:`All Blog data`,data:getAllBlogData})
+        } catch (error) {
+            logger.error(`Error in posting To LegalWire:${error}`)
             res.status(500).send({message:error.message,status:false}) 
         }
     }
