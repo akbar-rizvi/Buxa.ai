@@ -27,26 +27,36 @@ export default class document{
                 throw new Error("Insufficent balance")
             }
             const { metadata } = req.body;  
-            const ai=await aiWriter(metadata.title,metadata.personality,metadata.tone) 
-            let cleanedArticle;
-            let cleanedExcerpt;
-            if (ai) {
-                cleanedArticle = ai.article.replace(/\n\s*\+\s*/g, '');
-                cleanedExcerpt = ai.excerpt.replace(/\n\s*\+\s*/g, '');
-                ai.article = cleanedArticle;
-                ai.excerpt = cleanedExcerpt;
+            if (!metadata.deepDive){
+                const ai=await aiWriter(metadata.title,metadata.personality,metadata.tone) 
+                let cleanedArticle;
+                let cleanedExcerpt;
+                if (ai) {
+                    cleanedArticle = ai.article.replace(/\n\s*\+\s*/g, '');
+                    cleanedExcerpt = ai.excerpt.replace(/\n\s*\+\s*/g, '');
+                    ai.article = cleanedArticle;
+                    ai.excerpt = cleanedExcerpt;
+                }
+                let finalContent
+                if (cleanedArticle){ 
+                    finalContent = marked(cleanedArticle)
+                }
+                const keyword = await extractExcerptAndKeywords(cleanedExcerpt);
+                const documentData:any = await dbServices.document.createDocument(UserId,finalContent,metadata,keyword);
+                const wordCount = cleanedArticle?.split(/\s+/).filter(word => word.length > 0).length;
+                documentData.newDocument[0].wordCount = wordCount
+                return res.status(200).send({status:true,message:"Document Created Successfully",data:documentData.newDocument[0],credits:parseInt(documentData.credits[0].credits)});
+            }else if(metadata.deepDive){
+                const research= await researchArticle(metadata.title,metadata.timeRange,metadata.deepDive)
+                let researchFormatted=await Promise.all(research.articleContentArray.map((content)=>marked(content.replace(/#/g, ''))))
+                const data=await dbServices.document.createDocument(UserId,researchFormatted,metadata,research.allArticles)
+                return res.status(200).send({status:true,message:"Document Created Successfully",data:data});
+            }else{
+                throw new Error("Invalid format")
             }
-            let finalContent
-            if (cleanedArticle){ 
-                finalContent = marked(cleanedArticle)
-            }
-            const keyword = await extractExcerptAndKeywords(cleanedExcerpt);
-            const documentData:any = await dbServices.document.createDocument(UserId,finalContent,metadata,keyword);
-            const wordCount = cleanedArticle?.split(/\s+/).filter(word => word.length > 0).length;
-            documentData.newDocument[0].wordCount = wordCount
-            res.status(200).send({status:true,message:"Document Created Successfully",data:documentData.newDocument[0],credits:parseInt(documentData.credits[0].credits)});
+            
         } catch (error:any) {
-            logger.error(`Error in create Document:${error.mesage}`)
+            logger.error(`Error in create Document:${error}`)
             res.status(500).send({ status: false ,error: error.message });
         }
     };
@@ -207,7 +217,8 @@ export default class document{
         try {
             const userId=req['user'].userId
             if(!userId) throw new Error('Unauthorized User')
-            const {apiKey,postOn,content,metadata,keyword,tag,ghostURL}=req.body.data
+                console.log(req.body ,"====")
+            const {apiKey,postOn,content,metadata,keyword,tag,ghostURL}=req.body.data.data
             const slug =metadata.title.split(" ").join("-")
             await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn)
             res.status(200).send({status:true,message:`Blog ${status} Successfully`})
