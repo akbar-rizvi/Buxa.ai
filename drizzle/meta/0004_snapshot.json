@@ -1,6 +1,6 @@
 {
-  "id": "e699a79f-5312-4c74-9acd-7e8fd2ba40f0",
-  "prevId": "6841e0cf-e93d-494b-85f7-f3a2f4eb9c04",
+  "id": "a98ebdca-60a2-46ec-972b-131152a80f9c",
+  "prevId": "966c6e73-8d78-42cc-bcbe-ad2712f7c876",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -290,6 +290,55 @@
           "primaryKey": false,
           "notNull": false,
           "default": 50
+        },
+        "used_credits": {
+          "name": "used_credits",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "total_content": {
+          "name": "total_content",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "total_research": {
+          "name": "total_research",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "total_alerts": {
+          "name": "total_alerts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "credits_on_content": {
+          "name": "credits_on_content",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "credits_on_research": {
+          "name": "credits_on_research",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "credits_on_alerts": {
+          "name": "credits_on_alerts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
         },
         "refresh_token": {
           "name": "refresh_token",

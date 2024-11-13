@@ -5,29 +5,36 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1730977745191,
-      "tag": "0000_wild_maginty",
+      "when": 1731397831220,
+      "tag": "0000_flippant_scourge",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1730977779500,
-      "tag": "0001_thankful_joshua_kane",
+      "when": 1731398117396,
+      "tag": "0001_square_gargoyle",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1731047567128,
-      "tag": "0002_thin_red_skull",
+      "when": 1731398136854,
+      "tag": "0002_fine_ravenous",
       "breakpoints": true
     },
     {
       "idx": 3,
       "version": "7",
-      "when": 1731065740365,
-      "tag": "0003_overrated_klaw",
+      "when": 1731398410299,
+      "tag": "0003_whole_zarek",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1731398426887,
+      "tag": "0004_condemned_penance",
       "breakpoints": true
     }
   ]

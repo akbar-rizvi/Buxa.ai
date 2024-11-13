@@ -19,7 +19,7 @@ export default class user {
       let REDIRECT_URI = envConfigs.redirecturl;
       console.log(REDIRECT_URI,clientSecret,clientId,token)
       const validateUser = await axios.post(`https://oauth2.googleapis.com/token`,{code:token,client_id: clientId,client_secret: clientSecret,redirect_uri:REDIRECT_URI,grant_type: "authorization_code"});
-      console.log("done")
+      // console.log("done")
       const { id_token, access_token } = validateUser.data;
       const {email,name,picture} = await axios
       .get(

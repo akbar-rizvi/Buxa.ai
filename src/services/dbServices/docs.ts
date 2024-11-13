@@ -49,6 +49,7 @@ export default class document{
 
     static deleteDocumentById = async (userId: number, documentId: number): Promise<boolean> => {
         try {
+            
             const result =  await postgresdb.update(documents).set({isDeleted: true}).where(and(eq(documents.id,documentId),eq(documents.userId,userId),eq(documents.isDeleted,false))).returning({ id: documents.id }).execute();
             return result.length > 0
         } catch (error:any) {
@@ -175,12 +176,13 @@ export default class document{
                 })
                 if (docData==undefined) throw new Error("Invalid Document")
                 if (docData.content.length<=index) throw new Error("Invalid index")
-                docData.content.splice(index,1)
-                if(docData.content.length==0){
-                    return await tx.update(documents).set({isDeleted: true  }).where(and(eq(documents.id,documentId),eq(documents.userId,userId),eq(documents.isDeleted,false))).returning({id:documents.id}).execute();
-                }else{
-                    return await tx.update(documents).set({content:docData.content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).execute()
+                // docData.content.splice(index,1)
+                docData.content[index].isDeleted = true
+                const length = docData.content.filter((item:any) => !item.isDeleted).length
+                if(length==0){
+                    return await tx.update(documents).set({content:docData.content,isDeleted: true}).where(and(eq(documents.id,documentId),eq(documents.userId,userId),eq(documents.isDeleted,false))).returning({id:documents.id}).execute()
                 }
+                else return await tx.update(documents).set({content:docData.content}).where(and(eq(documents.userId,userId),eq(documents.id,documentId),eq(documents.isDeleted,false))).returning({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).execute()
                 
             })
         } catch (error) {

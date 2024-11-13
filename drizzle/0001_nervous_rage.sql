@@ -1,1 +1,0 @@
-ALTER TABLE "documents" ALTER COLUMN "content" DROP NOT NULL;

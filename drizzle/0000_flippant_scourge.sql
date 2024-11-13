@@ -1,5 +1,13 @@
+CREATE TABLE IF NOT EXISTS "blog_api" (
+	"id" serial NOT NULL,
+	"user_id" integer,
+	"blog_type" varchar,
+	"blog_site" jsonb,
+	"created_at" timestamp DEFAULT NOW()
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "documents" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" serial NOT NULL,
 	"user_id" integer NOT NULL,
 	"content" jsonb NOT NULL,
 	"metadata" jsonb,
@@ -41,13 +49,17 @@ CREATE TABLE IF NOT EXISTS "userss" (
 	"credits_on_research" integer DEFAULT 0,
 	"credits_on_alerts" integer DEFAULT 0,
 	"refresh_token" text,
-	"user_blog_api" varchar,
-	"blog_url" varchar,
 	"created_at" timestamp DEFAULT NOW(),
 	"updated_at" timestamp DEFAULT NOW(),
 	CONSTRAINT "userss_id_pk" PRIMARY KEY("id"),
 	CONSTRAINT "userss_email_unique" UNIQUE("email")
 );
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "blog_api" ADD CONSTRAINT "blog_api_user_id_userss_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."userss"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "documents" ADD CONSTRAINT "documents_user_id_userss_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."userss"("id") ON DELETE no action ON UPDATE no action;

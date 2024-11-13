@@ -28,7 +28,7 @@ export const documents:any = pgTable('documents', {
     id: serial('id'),
     userId: integer('user_id').references(() => users.id).notNull(),
     content: jsonb('content').notNull(),
-    metadata: jsonb('metadata'), 
+    metadata: jsonb('metadata').notNull(), 
     keyword:jsonb('keyword'),
     documentType:varchar("document_type"),
     isDeleted: boolean('is_deleted').default(false),

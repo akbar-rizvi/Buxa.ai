@@ -18,7 +18,6 @@ export default class document{
     static createDocument = async (req: AuthenticatedRequest, res: Response):Promise<any> => {
         try {
             const UserId= req.user.userId;
-            console.log(UserId);
             if(!UserId){
                 throw new Error("Invalid User")
             }
@@ -64,6 +63,7 @@ export default class document{
     static createResearch=async(req:Request,res:Response)=>{
         try {
             const userId=req["user"].userId
+            // const userId = 12
             const docId=req.query.id.toString()
             if(!userId){
                 throw new Error("Invalid User")
@@ -74,8 +74,14 @@ export default class document{
             }
             const {metadata}=req.body
             const research= await researchArticle(metadata.topic,metadata.timeRange,metadata.deepDive)
-            let researchFormatted=await Promise.all(research.articleContentArray.map((content)=>marked(content.replace(/#/g, ''))))
-            const data=await dbServices.document.createResearch(userId,metadata,research.allArticles,researchFormatted,parseInt(docId))
+            const contentArray = await Promise.all(
+                research.articleContentArray.map(async (content) => ({
+                    content: await marked(content.replace(/#/g, '')),  // Convert markdown and assign to content
+                    isDeleted: false  // Set isDeleted as false
+                }))
+            );   
+            // console.log("ContentArray:::|||||||||",contentArray)         
+            const data=await dbServices.document.createResearch(userId,metadata,research.allArticles,contentArray,parseInt(docId))
             res.status(200).send({status:true,message:"Document Created Successfully",data:data});
         } catch (error) {
             logger.error(`Error in create Research:${error.mesage}`)
@@ -94,6 +100,7 @@ export default class document{
     static getDocumentsByUserId = async (req: AuthenticatedRequest, res: Response) => {
         try {
             const userId = req.user.userId;
+            // const userId = 12
             const documents = await dbServices.document.getDocumentsByUserId(userId);
             const responseWithWordCount = documents.map((item:any) => ({
                 ...item,
@@ -109,6 +116,7 @@ export default class document{
     static getResearchbyUserId=async(req:AuthenticatedRequest,res:Response)=>{
         try {
             const userId = req.user.userId;
+            // const userId = 12
             if(!userId){
                 throw new Error("Invalid User")
             }
@@ -123,6 +131,7 @@ export default class document{
     static deleteDocumentByUserId = async (req: Request, res: Response):Promise<void>=> {
         try {
             const userId = req["user"].userId
+            // const userId = 12
             const documentId = req.params.documentId;
             const result = await dbServices.document.deleteDocumentById(userId, parseInt(documentId));
             if(!result){
@@ -200,7 +209,8 @@ export default class document{
 
     static deleteResearch=async(req:AuthenticatedRequest,res:Response)=>{
         try {
-            const userId = 2;
+            const userId = req.user.userId
+            // const userId = 12
             const documentId = req.params.documentId
             const index = req.query.index.toString()
             if(!userId) throw new Error('Unauthorized User')

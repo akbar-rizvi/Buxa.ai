@@ -1,9 +1,65 @@
 {
-  "id": "f07e63c5-c004-4d85-8f2a-520020ca34fe",
+  "id": "6841e0cf-e93d-494b-85f7-f3a2f4eb9c04",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.blog_api": {
+      "name": "blog_api",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "blog_type": {
+          "name": "blog_type",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "blog_site": {
+          "name": "blog_site",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "NOW()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "blog_api_user_id_userss_id_fk": {
+          "name": "blog_api_user_id_userss_id_fk",
+          "tableFrom": "blog_api",
+          "tableTo": "userss",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "public.documents": {
       "name": "documents",
       "schema": "",
@@ -11,7 +67,7 @@
         "id": {
           "name": "id",
           "type": "serial",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true
         },
         "user_id": {

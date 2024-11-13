@@ -6,11 +6,12 @@ export default ({
   schema: "./src/models/schema.ts",
   out: "./drizzle",
   dbCredentials: {
-    // host: process.env.HOST,
-    // user: process.env.DBUSER,
-    // password: process.env.PASSWORD,
-    // database: process.env.DATABASE,
-    // ssl: false,
+    // host: envConfigs.db.host,
+    // user: envConfigs.db.user,
+    // password: envConfigs.db.password,
+    // database: envConfigs.db.database,
+    // port: envConfigs.db.port,
+    // ssl: envConfigs.db.ssl ,
     url:envConfigs.db.url
   },
 });

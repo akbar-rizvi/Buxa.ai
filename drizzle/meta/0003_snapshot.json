@@ -1,6 +1,6 @@
 {
-  "id": "2ad105a4-dad1-42f8-b6bb-a26b33004dc9",
-  "prevId": "5c6afe57-832e-483a-8336-c3cce7e96cfe",
+  "id": "966c6e73-8d78-42cc-bcbe-ad2712f7c876",
+  "prevId": "cdda9a42-e7b1-44c1-b0b7-4a7840cb866a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -91,12 +91,6 @@
         "keyword": {
           "name": "keyword",
           "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "document_type": {
-          "name": "document_type",
-          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },

@@ -16,7 +16,16 @@ const envVarsSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string(),
   REDIRECT_URI:z.string().url(),
   FRONTEND_REDIRECT_URL:z.string().url(),
-  EXPIRE_TIME: z.string() // 1 hour
+  EXPIRE_TIME: z.string(), // 1 hour
+  HOST: z.string(),
+  DBUSER: z.string(),
+  PASSWORD: z.string(),
+  DATABASE: z.string(),
+  DBPORT: z
+    .string()
+    .default("5432")
+    .transform((str) => parseInt(str, 10)),
+  SSL: z.enum(["true", "false"]).transform((str) => str === "true"),
 });
 
 const envVars = envVarsSchema.parse(process.env);
@@ -27,6 +36,12 @@ export const envConfigs = {
   port: envVars.PORT || 8080,
   salt: envVars.SALT || 10,
   db: {
+    // host: envVars.HOST,
+    // user: envVars.DBUSER,
+    // password: envVars.PASSWORD,
+    // database:envVars.DATABASE,
+    // port: envVars.DBPORT,
+    // ssl: envVars.SSL,
     url: envVars.PG_URL, // PostgreSQL connection URL
   },
   jwt: {

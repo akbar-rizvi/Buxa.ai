@@ -1,6 +1,6 @@
 {
-  "id": "5c6afe57-832e-483a-8336-c3cce7e96cfe",
-  "prevId": "4c0fbb14-2061-43f9-8fdf-defd36c348dc",
+  "id": "cdda9a42-e7b1-44c1-b0b7-4a7840cb866a",
+  "prevId": "e699a79f-5312-4c74-9acd-7e8fd2ba40f0",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -18,17 +18,17 @@
           "name": "user_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "blog_url": {
-          "name": "blog_url",
+        "blog_type": {
+          "name": "blog_type",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
-        "blog_api": {
-          "name": "blog_api",
-          "type": "varchar",
+        "blog_site": {
+          "name": "blog_site",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -343,18 +343,6 @@
         "refresh_token": {
           "name": "refresh_token",
           "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "user_blog_api": {
-          "name": "user_blog_api",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "blog_url": {
-          "name": "blog_url",
-          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
