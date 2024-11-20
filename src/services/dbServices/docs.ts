@@ -29,7 +29,7 @@ export default class document{
 
     static getDocumentsByUserId = async (userId: number): Promise<any> => {
         try {
-            const getDocument = await postgresdb.select({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite}).from(documents).where(and(eq(documents.userId, userId),eq(documents.isDeleted, false),eq(documents.documentType,"article"))).execute();
+            const getDocument = await postgresdb.select({id:documents.id,content:documents.content,updatedAt:documents.updatedAt,isFavorite:documents.isFavorite,isPosted:documents.isPosted}).from(documents).where(and(eq(documents.userId, userId),eq(documents.isDeleted, false),eq(documents.documentType,"article"))).execute();
             return getDocument;
         } catch (error:any) {
             throw new Error(error);
@@ -112,7 +112,7 @@ export default class document{
                             metadata:metaData,
                             keyword:researchJson,
                             documentType:"research"
-                        }).returning({id:documents.id,content:documents.content,isFavorite:documents.isFavorite,updatedAt:documents.updatedAt})
+                        }).returning({id:documents.id,content:documents.content,isFavorite:documents.isFavorite,updatedAt:documents.updatedAt,keyword:documents.keyword})
                     await tx.update(users).set({
                         credits:sql`${userDetails[0].credits} - 1`,usedCredits:sql`${userDetails[0].usedCredits}+1`,totalResearch:sql`${userDetails[0].totalResearch}+1`,cor:sql`${userDetails[0].cor}+1`
                     }).where(eq(users.id,userId))
@@ -210,6 +210,16 @@ export default class document{
             
         } catch (error) {
             throw new Error(error)  
+        }
+    }
+
+    static postToBlogSite = async(userId:number,docId:number):Promise<any>=>{
+        try{
+            const condition = and(eq(documents.userId,userId),eq(documents.id,docId),eq(documents.isDeleted,false))
+            return await postgresdb.update(documents).set({isPosted:true})
+            .where(condition).execute()
+        }catch(error){
+            throw new Error(error)
         }
     }
     

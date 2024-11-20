@@ -1,0 +1,1 @@
+ALTER TABLE "documents" ADD COLUMN "is_posted" boolean DEFAULT false;

@@ -14,12 +14,14 @@ export default class user {
   static googleSignInSignUp =  async(req:Request,res:Response)=>{
     try {
       const token = req.query.code;
+      console.log("token:",token)
       let clientId = envConfigs.googleClientId;
       let clientSecret = envConfigs.googleClientSecret;
       let REDIRECT_URI = envConfigs.redirecturl;
+      console.log(clientId,clientSecret,REDIRECT_URI)
       console.log(REDIRECT_URI,clientSecret,clientId,token)
       const validateUser = await axios.post(`https://oauth2.googleapis.com/token`,{code:token,client_id: clientId,client_secret: clientSecret,redirect_uri:REDIRECT_URI,grant_type: "authorization_code"});
-      // console.log("done")
+      console.log("done")
       const { id_token, access_token } = validateUser.data;
       const {email,name,picture} = await axios
       .get(
@@ -47,8 +49,11 @@ export default class user {
         accessToken:genToken.token,
         userBlogApiKey:genToken.userBlogApiKey ?? null,
         blogUrl:genToken.blogUrl ?? null
-      }  
+      } 
+      // console.log("Token::",userDetails.accessToken)
       let FRONTEND_REDIRECT_URL = envConfigs.frontendRedirectUrl;
+      console.log("token:",genToken.token) 
+      // console.log("redirection")
       return res.redirect(url.format({
         pathname:`${FRONTEND_REDIRECT_URL}`,
         query:{user:JSON.stringify(userDetails)}
@@ -59,7 +64,6 @@ export default class user {
       res.status(500).json({ status: false, message: error.mesage });
     }
   }
-
   static userdetails = async (req: authenticateReq, res: Response) => {
     try {
       const user = req.user.userId;

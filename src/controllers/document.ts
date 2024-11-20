@@ -17,6 +17,7 @@ interface AuthenticatedRequest extends Request {
 export default class document{
     static createDocument = async (req: AuthenticatedRequest, res: Response):Promise<any> => {
         try {
+
             const UserId= req.user.userId;
             if(!UserId){
                 throw new Error("Invalid User")
@@ -25,7 +26,8 @@ export default class document{
             if (CheckUser[0].credits==0){
                 throw new Error("Insufficent balance")
             }
-            const { metadata } = req.body;  
+            const { metadata } = req.body; 
+            // console.log("metaData:::",metadata.title) 
             if (!metadata.deepDive){
                 const ai=await aiWriter(metadata.title,metadata.personality,metadata.tone) 
                 let cleanedArticle;
@@ -45,11 +47,6 @@ export default class document{
                 const wordCount = cleanedArticle?.split(/\s+/).filter(word => word.length > 0).length;
                 documentData.newDocument[0].wordCount = wordCount
                 return res.status(200).send({status:true,message:"Document Created Successfully",data:documentData.newDocument[0],credits:parseInt(documentData.credits[0].credits)});
-            }else if(metadata.deepDive){
-                const research= await researchArticle(metadata.title,metadata.timeRange,metadata.deepDive)
-                let researchFormatted=await Promise.all(research.articleContentArray.map((content)=>marked(content.replace(/#/g, ''))))
-                const data=await dbServices.document.createDocument(UserId,researchFormatted,metadata,research.allArticles)
-                return res.status(200).send({status:true,message:"Document Created Successfully",data:data});
             }else{
                 throw new Error("Invalid format")
             }
@@ -73,6 +70,7 @@ export default class document{
                 throw new Error("Insufficent balance")
             }
             const {metadata}=req.body
+            console.log(metadata.topics)
             const research= await researchArticle(metadata.topic,metadata.timeRange,metadata.deepDive)
             const contentArray = await Promise.all(
                 research.articleContentArray.map(async (content) => ({
@@ -228,13 +226,14 @@ export default class document{
             const userId=req['user'].userId
             if(!userId) throw new Error('Unauthorized User')
             console.log(req.body)
-            const {postOn,content,metadata,keyword,tag}=req.body.data
-            console.log("Varun")
+            const {id,postOn,content,metadata,keyword,tag}=req.body.data
+            // console.log("Varun")
             const {apiKey,ghostURL} = req.body.data.data
-            console.log("metaData:",metadata)
-            console.log("apiKey",apiKey)
+            // console.log("metaData:",metadata)
+            // console.log("apiKey",apiKey)
             const slug =metadata.title.split(" ").join("-")
             await publishToGhost(apiKey,content,metadata.title,slug,tag,keyword.excerpt,ghostURL,postOn)
+            await dbServices.document.postToBlogSite(userId,id)
             res.status(200).send({status:true,message:`Blog ${status} Successfully`})
         } catch (error) {
             logger.error(`Error in posting To LegalWire:${error}`)

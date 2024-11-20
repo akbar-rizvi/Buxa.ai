@@ -192,7 +192,7 @@ static createResearch = z.object({
           timeRange: z.string({required_error:"Time range is required"}),
           focus: z.string().optional(),
           source: z.string().optional(),
-          deepDive: z.boolean({required_error:"Deep dive is required"}),
+          // deepDive: z.boolean({required_error:"Deep dive is required"}),
 
         })
         .strict(),

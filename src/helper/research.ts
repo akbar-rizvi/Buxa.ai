@@ -4,6 +4,7 @@ import { ChatOpenAI } from '@langchain/openai';
 import { format } from 'date-fns';
 import cheerio from 'cheerio';
 import { envConfigs } from "../config/envConfig";
+import { title } from 'node:process';
 
 // Set environment variables (use dotenv for production)
 const SERPER_API_KEY = envConfigs.serper_api_key_research;
@@ -368,6 +369,7 @@ A markdown file containing:
 
 
 async function articleGeneration(topics: any, timeRange: any, deepDive: boolean) {
+  console.log("topics:",topics)
   const timeRanges = deepDive ? ["anytime", "past_week", "past_24hrs"] : [timeRange];
   const allArticles = [];
   const articleContentArray: string[] = [];
@@ -403,6 +405,7 @@ async function articleGeneration(topics: any, timeRange: any, deepDive: boolean)
 
 // Exported function modified to use the new array-based output
 export const researchArticle = async (topics: any, date_range: any, deepDive: any) => {
+  console.log("research:::",topics)
   const { articleContentArray, allArticles } = await articleGeneration(topics, date_range, deepDive);
   
   // These variables now contain the generated content and JSON

@@ -33,6 +33,7 @@ export const documents:any = pgTable('documents', {
     documentType:varchar("document_type"),
     isDeleted: boolean('is_deleted').default(false),
     isFavorite: boolean('is_favorite').default(false),
+    isPosted:boolean('is_posted').default(false),
     createdAt: timestamp('created_at').default(sql`NOW()`),
     updatedAt: timestamp('updated_at').default(sql`NOW()`),
 
