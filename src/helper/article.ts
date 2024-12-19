@@ -29,13 +29,13 @@ const logger = winston.createLogger({
 // Placeholder classes for ChatGroq
 
 // Initialize LLMs
-const research_llm = new ChatGroq({
+const research_llm:any = new ChatGroq({
     temperature: 0,
     modelName: "llama-3.1-70b-versatile",
     apiKey: GROQ_API_KEY1
 });
 
-const editor_llm = new ChatGroq({
+const editor_llm:any= new ChatGroq({
     temperature: 0,
     modelName: "llama-3.1-70b-versatile",
     apiKey: GROQ_API_KEY2
@@ -47,7 +47,7 @@ const editor_llm = new ChatGroq({
 //     apiKey: GROQ_API_KEY3
 // });
 
-const writer_llm = new ChatOpenAI({
+const writer_llm:any = new ChatOpenAI({
     model: "gpt-4-turbo",
     openAIApiKey: envConfigs.openapikey,
 });

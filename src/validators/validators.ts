@@ -65,9 +65,11 @@ export default class validators {
 
   static getDocumentsById = z.object({
     body: z.object({}).strict(),   
-    params: z.object({}).strict(),  
+    params: z.object({documentId:z.string().optional()}).strict(),  // Used z.string() to validate the documentId inside object
     query: z.object({}).strict(),  
   });
+
+  
 
   static getAllBlogData = z.object({
     body: z.object({}).strict(),   
@@ -173,7 +175,10 @@ export default class validators {
 
   static updateResearch = z.object({
     body: z.object({
-        content: z.array(z.string()), // Validates that 'content' is a non-empty string
+        content: z.array(z.object({
+          content:z.string(),
+          isDeleted:z.boolean()
+        })), // Validates that 'content' is a non-empty string
     }),
     params: z.object({
         documentId: z.string()

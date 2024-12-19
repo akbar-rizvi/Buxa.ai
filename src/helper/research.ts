@@ -8,8 +8,11 @@ import { title } from 'node:process';
 
 // Set environment variables (use dotenv for production)
 const SERPER_API_KEY = envConfigs.serper_api_key_research;
-const GROQ_API_KEY1 = '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';
-const GROQ_API_KEY2 = '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';
+// const GROQ_API_KEY1 = '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';
+// const GROQ_API_KEY2 = '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';
+
+const GROQ_API_KEY1 = envConfigs.groqapikey1;
+const GROQ_API_KEY2 = envConfigs.groqapikey2;
 
 const research_llm = new ChatGroq({
   temperature: 0,

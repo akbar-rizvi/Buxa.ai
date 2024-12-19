@@ -3,8 +3,15 @@ import controller from "../controllers";
 import { authenticateUser } from "../middleware"; 
 import { validateRequest } from "../middleware";
 import validators from "../validators";
+import multer from "multer";
+
+
+const storage = multer.memoryStorage(); 
+const upload = multer({ storage });
 
 const router = Router();
+
+router.post("/uploadImage",authenticateUser,upload.single("image"),controller.document.uploadImage)
 
 
 router.post("/",authenticateUser,validateRequest(validators.auth.createDocument) ,controller.document.createDocument);

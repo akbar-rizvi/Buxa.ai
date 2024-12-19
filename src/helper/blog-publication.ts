@@ -26,7 +26,7 @@ export const publishToGhost=async(ghostAdminAPIkeys:string,html: string, title: 
               title: title,
               slug: slug,
               custom_excerpt: excerpt,
-              tags: [{ name: tag }],
+              tags: [{ name: "c-buzz" }],
               authors: [
                   {
                       slug: 'legal-wires'
@@ -36,15 +36,20 @@ export const publishToGhost=async(ghostAdminAPIkeys:string,html: string, title: 
           console.log("gl",ghostURL)
           console.log("token",token)
           console.log("payload",payload )
-          const feedData = await axios.post(`${ghostURL}/ghost/api/admin/posts/`, { posts: [payload] }, {
+          const feedData = await axios.post(`https://btcwires.com/ghost/api/admin/posts/`, { posts: [payload] }, {
               headers: {
                   Authorization: `Ghost ${token}`
               }
           });
+
+          console.log("Response is >>>>>>>>>>>>>> ", feedData)
         }else{
           console.log("Wordpress")
         }
     } catch (error) {
+      console.log("Error is >>>>> ",error)
+      console.log("Error is <<<<< ",JSON.stringify(error))
+
       throw new Error(error)
       
     }

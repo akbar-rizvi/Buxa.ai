@@ -48,7 +48,9 @@ export const blogApis= pgTable('blog_api',{
   blogType:varchar("blog_type"),
   blogSite:jsonb("blog_site"),
   createdAt:timestamp('created_at').default(sql`NOW()`)
-})
+},(table)=>({
+  pk:primaryKey({columns:[table.id]})
+}))
 
 // export const alert=pgTable("alert",{
 //   id:serial("id"),

@@ -2,95 +2,117 @@ import { Request, response, Response } from "express";
 import dbServices from "../services/dbServices";
 import axios from "axios";
 import { envConfigs } from "../config/envConfig";
-import url from "node:url"
+import url from "node:url";
 import logger from "../config/logger";
+import { fromURL } from "cheerio";
 
 interface authenticateReq {
   user?: any;
   body?: any;
 }
 export default class user {
-
-  static googleSignInSignUp =  async(req:Request,res:Response)=>{
+  static googleSignInSignUp = async (req: Request, res: Response) => {
     try {
       const token = req.query.code;
-      console.log("token:",token)
+      // console.log("token:",token)
       let clientId = envConfigs.googleClientId;
       let clientSecret = envConfigs.googleClientSecret;
       let REDIRECT_URI = envConfigs.redirecturl;
-      console.log(clientId,clientSecret,REDIRECT_URI)
-      console.log(REDIRECT_URI,clientSecret,clientId,token)
-      const validateUser = await axios.post(`https://oauth2.googleapis.com/token`,{code:token,client_id: clientId,client_secret: clientSecret,redirect_uri:REDIRECT_URI,grant_type: "authorization_code"});
-      console.log("done")
-      const { id_token, access_token } = validateUser.data;
-      const {email,name,picture} = await axios
-      .get(
-        `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+      console.log(clientId, clientSecret, REDIRECT_URI);
+      console.log(REDIRECT_URI, clientSecret, clientId, token);
+      const validateUser = await axios.post(
+        `https://oauth2.googleapis.com/token`,
         {
-          headers: {
-            Authorization: `Bearer ${id_token}`,
-          },
+          code: token,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: REDIRECT_URI,
+          grant_type: "authorization_code",
         }
-      )
-      .then((res) => res.data)
-      .catch((error) => {
-        throw new Error(error.message);
-      });
-      if(!email) throw new Error("Error fetching email please try again");
-      const genToken = await dbServices.user.googleLogIn(email,name);
-      
+      );
+      console.log("done");
+      const { id_token, access_token } = validateUser.data;
+      const { email, name, picture } = await axios
+        .get(
+          `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+          {
+            headers: {
+              Authorization: `Bearer ${id_token}`,
+            },
+          }
+        )
+        .then((res) => res.data)
+        .catch((error) => {
+          throw new Error(error.message);
+        });
+      if (!email) throw new Error("Error fetching email please try again");
+      const genToken = await dbServices.user.googleLogIn(email, name);
+
       // const accessToken = genToken.token
       const userDetails = {
-        id:genToken.user.id,
-        firstName:genToken.user.firstName,
-        lastName:genToken.user.lastName,
-        email:genToken.user.email,
-        credits:genToken.user.credits,
-        accessToken:genToken.token,
-        userBlogApiKey:genToken.userBlogApiKey ?? null,
-        blogUrl:genToken.blogUrl ?? null
-      } 
+        id: genToken.user.id,
+        firstName: genToken.user.firstName,
+        lastName: genToken.user.lastName,
+        email: genToken.user.email,
+        credits: genToken.user.credits,
+        accessToken: genToken.token,
+        userBlogApiKey: genToken.userBlogApiKey ?? null,
+        blogUrl: genToken.blogUrl ?? null,
+      };
       // console.log("Token::",userDetails.accessToken)
       let FRONTEND_REDIRECT_URL = envConfigs.frontendRedirectUrl;
-      console.log("token:",genToken.token) 
+      //console.log("token:",genToken.token)
       // console.log("redirection")
-      return res.redirect(url.format({
-        pathname:`${FRONTEND_REDIRECT_URL}`,
-        query:{user:JSON.stringify(userDetails)}
-      }));
+      return res.redirect(
+        url.format({
+          pathname: `${FRONTEND_REDIRECT_URL}`,
+          query: { user: JSON.stringify(userDetails) },
+        })
+      );
     } catch (error) {
-      console.log(error)
-      logger.error(`Error in google auth:${error}`)
-      res.status(500).json({ status: false, message: error.mesage });
+      console.log(error);
+      logger.error(`Error in google auth:${error}`);
+      // res.status(500).json({ status: false, message: error.mesage });
+      let FRONTEND_REDIRECT_URL =  envConfigs.frontendRedirectUrl;
+      
+      return res.redirect(
+        url.format({
+          pathname: `${FRONTEND_REDIRECT_URL}`,
+          query: { user: JSON.stringify({}) },
+        })
+      );
     }
-  }
+  };
   static userdetails = async (req: authenticateReq, res: Response) => {
     try {
       const user = req.user.userId;
       if (!user) {
-       throw new Error('Invalid user')
+        throw new Error("Invalid user");
       }
       const data = await dbServices.user.userDetails(user);
-      data[0].credits = parseInt(data[0].credits)
-      res.status(200).send({ status: true, message: "user details", data: data[0] });
+      data[0].credits = parseInt(data[0].credits);
+      res
+        .status(200)
+        .send({ status: true, message: "user details", data: data[0] });
     } catch (error: any) {
-      logger.error(`Error in user detail:${error.mesage}`)
+      logger.error(`Error in user detail:${error.mesage}`);
       res.status(500).send({ status: false, message: error.mesage });
     }
   };
 
-  static dashboardData= async(req:authenticateReq,res:Response)=>{
+  static dashboardData = async (req: authenticateReq, res: Response) => {
     try {
-      const userId=req.user.userId
+      const userId = req.user.userId;
       if (!userId) {
-        throw new Error('Invalid user')
-       }
-      const dashboard=await dbServices.user.dashboardData(userId)
-      res.status(200).send({ status: true, message: "All dashboard data", data: dashboard });
+        throw new Error("Invalid user");
+      }
+      const dashboard = await dbServices.user.dashboardData(userId);
+      res
+        .status(200)
+        .send({ status: true, message: "All dashboard data", data: dashboard });
     } catch (error) {
-      logger.error(`Error in dashboard data:${error.mesage}`)
+      logger.error(`Error in dashboard data:${error.mesage}`);
       res.status(500).json({ status: false, message: error.mesage });
     }
-  }
-
+  };
 }

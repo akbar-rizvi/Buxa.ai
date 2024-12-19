@@ -17,15 +17,17 @@ const envVarsSchema = z.object({
   REDIRECT_URI:z.string().url(),
   FRONTEND_REDIRECT_URL:z.string().url(),
   EXPIRE_TIME: z.string(), // 1 hour
-  HOST: z.string(),
-  DBUSER: z.string(),
-  PASSWORD: z.string(),
-  DATABASE: z.string(),
-  DBPORT: z
-    .string()
-    .default("5432")
-    .transform((str) => parseInt(str, 10)),
-  SSL: z.enum(["true", "false"]).transform((str) => str === "true"),
+  GROQ_API_KEY1:z.string(),
+  GROQ_API_KEY2:z.string(),
+  // HOST: z.string(),
+  // DBUSER: z.string(),
+  // PASSWORD: z.string(),
+  // DATABASE: z.string(),
+  // DBPORT: z
+  //   .string()
+  //   .default("5432")
+  //   .transform((str) => parseInt(str, 10)),
+  // SSL: z.enum(["true", "false"]).transform((str) => str === "true"),
 });
 
 const envVars = envVarsSchema.parse(process.env);
@@ -54,7 +56,9 @@ export const envConfigs = {
   googleClientId:envVars.GOOGLE_CLIENT_ID,
   googleClientSecret: envVars.GOOGLE_CLIENT_SECRET,
   redirecturl :envVars.REDIRECT_URI,
-  frontendRedirectUrl:envVars.FRONTEND_REDIRECT_URL
+  frontendRedirectUrl:envVars.FRONTEND_REDIRECT_URL,
+  groqapikey1:envVars.GROQ_API_KEY1,
+  groqapikey2:envVars.GROQ_API_KEY2
 };
 
 export const isDev = envVars.MODE === "dev";
